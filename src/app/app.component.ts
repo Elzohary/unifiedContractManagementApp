@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -9,4 +9,24 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'unifiedContractManagementApp';
+
+ userName = signal('Mohamed');
+ isValidUserId = signal(true);
+
+ updateName() {
+
+  if(this.userName() == 'Mohamed') {
+    this.userName.set('Zohary');
+  }
+  else {
+    this.userName.set('Mohamed');
+  }
+  console.log(this.userName());
+ }
+
+ updateStatus() {
+  this.isValidUserId.set(!this.isValidUserId());
+ }
+
+
 }
