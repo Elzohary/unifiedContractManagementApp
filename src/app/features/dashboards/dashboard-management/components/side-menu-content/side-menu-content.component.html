@@ -1,0 +1,37 @@
+<section>
+  <div class="container-md menu-header d-flex justify-content-between">
+    <img class="img-fluid mw-25 w-25 h-25" src="../../../../../../assets/Primavera - SUC.png" alt="Logo">
+    <mat-chip class="example-box" cdkDrag>V 1.0</mat-chip>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="menuContent container">
+    <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="start">
+      <mat-tab label="Projects">
+        <p class="mt-3 px-3 title">
+          DASHBOARD
+        </p>
+        <ul class="px-0">
+          @for(item of projectMenu; track item.label) {
+            <a>
+              <li class="item my-2 px-3"> {{item.label}} </li>
+            </a>
+            <ul>
+              @if(item.subItems) {
+                @for(subitem of item.subItems; track subitem.label) {
+                  <a [routerLink]="subitem.link" routerLinkActive="activeSubItem">
+                    <li class="subItem py-2 px-3"> {{subitem.label}} </li>
+                  </a>
+                }
+              }
+            </ul>
+          }
+        </ul>
+      </mat-tab>
+
+      <mat-tab label="Company">
+        <p class="tab m-3">Coming Soon!</p>
+      </mat-tab>
+    </mat-tab-group>
+  </div>

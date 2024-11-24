@@ -11,15 +11,15 @@ import { Router } from '@angular/router';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  
+
   loginForm = new FormGroup({
     email: new FormControl('',Validators.required),
     password: new FormControl('',Validators.required)
   });
-  
+
   constructor(private router: Router ) {}
-  
+
   handleSubmit(){
-    this.router.navigate(['/portal','overview']);
+    this.router.navigate(['/dashboard','all-work-orders']);
   }
 }

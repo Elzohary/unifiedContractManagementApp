@@ -1,11 +1,9 @@
-<a routerLink="/home">Home</a>
-
-    <div id="login-card" class="card">
-    <div class="card-body">
-        <h2 class="text-center">Login</h2>
+<div id="login-card" class="card">
+  <div class="card-body">
+    <h2 class="text-center">Login</h2>
     <br>
 
-    <form class="text-center"  [formGroup]="loginForm" (ngSubmit)="handleSubmit()">
+    <form class="text-center" [formGroup]="loginForm" (ngSubmit)="handleSubmit()">
       <div class="form-group">
         <input type="email" class="form-control" id="email" placeholder="Enter email" formControlName="email">
       </div>

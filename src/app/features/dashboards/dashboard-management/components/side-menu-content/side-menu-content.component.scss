@@ -1,0 +1,60 @@
+.mat-mdc-list-item-icon {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.menu-header {
+padding: 1rem;
+}
+
+img {
+min-width: 3rem;
+max-width: 4rem;
+}
+
+ul, li {
+list-style-type: none;
+}
+
+a {
+text-decoration: none;
+color: inherit;
+}
+
+.title{
+color: #84919A;
+}
+
+.item {
+font-size: 1.03rem;
+font-weight: 500;
+padding-block: 0.52rem;
+padding-inline-start: 0.8em;
+border-radius: 0.5rem;
+}
+
+.activeItem {
+background-color: #EEF0F2;
+font-weight: 900;
+}
+
+.activeSubItem {
+background-color: #5b6066 !important;
+font-weight: 900;
+}
+
+.subItem {
+font-size: 1rem;
+border-radius: 0.5rem;
+}
+
+.subItem:hover {
+background-color: #EEF0F2;
+color: #252C32;
+}
+
+.itemBtn {
+background-color: rgb(240, 240, 240);
+width: 100%;
+border: none;
+border-radius: 0.5rem;
+}
