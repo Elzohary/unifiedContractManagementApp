@@ -6,14 +6,23 @@
 
   <mat-drawer-content class="content">
 
-    <button class="toggleBtn" (click)="sideMenuToggle()" mat-icon-button aria-label="Toggle">
-      <mat-icon>menu</mat-icon>
-    </button>
+    <div class="header">
+
+      <button class="toggleBtn" (click)="sideMenuToggle()" mat-icon-button aria-label="Toggle">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <app-header-dashboard-management></app-header-dashboard-management>
+
+    </div>
+    <mat-divider></mat-divider>
+
+
+
 
 
     <div class="pageContent">
       <router-outlet></router-outlet>
-
     </div>
   </mat-drawer-content>
 </mat-drawer-container>

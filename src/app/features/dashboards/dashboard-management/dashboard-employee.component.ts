@@ -4,6 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SideMenuContentComponent } from './components/side-menu-content/side-menu-content.component';
 import { RouterOutlet } from '@angular/router';
+import { HeaderDashboardManagementComponent } from './layouts/header-dashboard-management/header-dashboard-management.component';
+import {MatGridListModule} from '@angular/material/grid-list';
+import { MatDivider } from '@angular/material/divider';
 
 
 
@@ -15,7 +18,10 @@ import { RouterOutlet } from '@angular/router';
     MatButtonModule,
     MatIconModule,
     SideMenuContentComponent,
-    RouterOutlet
+    RouterOutlet,
+    HeaderDashboardManagementComponent,
+    MatGridListModule,
+    MatDivider
   ],
   templateUrl: './dashboard-employee.component.html',
   styleUrl: './dashboard-employee.component.scss'

@@ -4,8 +4,12 @@
   background: #eee;
 }
 
+mat-drawer {
+  width: 17%;
+}
+
 .drawer {
-  padding: 2%;
+  padding: 0%;
 }
 
 .toggleBtn {
@@ -19,4 +23,16 @@
 
 .pageContent {
   padding: 2%;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  justify-items: center;
+  padding-right: 3%;
+}
+
+mat-divider{
+  border-color: rgb(214, 214, 214);
 }

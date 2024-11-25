@@ -1,0 +1,17 @@
+.mat-mdc-table {
+  overflow: scroll;
+  height: 100%;
+  box-shadow: none;
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+  /* Set the width of the scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #497e51;
+  /* Color of the thumb (the draggable part) */
+  border-radius: 4px;
+  /* Rounded corners for the thumb */
+}

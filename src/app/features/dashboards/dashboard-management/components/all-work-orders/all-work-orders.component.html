@@ -1,1 +1,45 @@
-<p>all-work-orders works!</p>
+<div class="conrainer px-3 z">
+  <h1 class="fw-bold fs-2">Work Orders</h1>
+
+  <div class="d-flex justify-content-between align-items-center m-0">
+    <mat-form-field class="filter w-25 d-flex align-items-end flex-column">
+      <mat-label class="w-25">Filter Work Orders...</mat-label>
+      <input matInput (keyup)="applyFilter($event)" #input>
+    </mat-form-field>
+
+    <button mat-stroked-button color="primary">Add New WO +</button>
+  </div>
+
+  <mat-table mat-table [dataSource]="dataSource" class="mat-elevation-z8 demo-table">
+    <!-- Id Column -->
+    <ng-container matColumnDef="wo-id">
+      <mat-header-cell mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
+      <mat-cell mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
+    </ng-container>
+
+    <!-- Location Column -->
+    <ng-container matColumnDef="wo-location">
+      <mat-header-cell mat-header-cell *matHeaderCellDef> Location </mat-header-cell>
+      <mat-cell mat-cell *matCellDef="let element"> {{element.location}} </mat-cell>
+    </ng-container>
+
+    <!-- Type Column -->
+    <ng-container matColumnDef="wo-type">
+      <mat-header-cell mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
+      <mat-cell mat-cell *matCellDef="let element"> {{element.type}} </mat-cell>
+    </ng-container>
+
+    <!-- Status Column -->
+    <ng-container matColumnDef="wo-status">
+      <mat-header-cell mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+      <mat-cell mat-cell *matCellDef="let element"> {{element.status}} </mat-cell>
+    </ng-container>
+
+    <mat-header-row class="fw-bold tableHeader" mat-header-row
+      *matHeaderRowDef="displayedColumns sticky: true"></mat-header-row>
+    <mat-row mat-row *matRowDef="let row; columns: displayedColumns;" routerLink="/dashboard/work-order"></mat-row>
+  </mat-table>
+
+  <mat-paginator [pageSizeOptions]="[30, 40, 50]" showFirstLastButtons aria-label="Select page of periodic elements">
+  </mat-paginator>
+</div>
