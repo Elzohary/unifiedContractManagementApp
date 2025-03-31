@@ -1,59 +1,66 @@
-# UnifiedContractManagementApp
+# Unified Contract Management App
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
+A modern Angular application for managing contracts, built with Angular Material design system.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- **Modern UI Design**: Clean, responsive interface based on Material Design
+- **Dark/Light Theme Support**: User-selectable themes that persist across sessions
+- **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile
+- **Modular Architecture**: Well-organized component structure
+- **Standalone Components**: Using Angular's standalone components for better modularity
 
-```bash
-ng serve
+## Architecture
+
+The application follows a feature-based architecture:
+
+```
+src/
+├── app/
+│   ├── auth/                 # Authentication features
+│   ├── core/                 # Core functionality and services
+│   ├── features/             # Major application features
+│   │   └── dashboards/       # Dashboard components and features
+│   ├── shared/               # Shared components, services, and models
+│   └── app.component.ts      # Root component
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Tech Stack
 
-## Code scaffolding
+- Angular 17+
+- Angular Material
+- RxJS
+- TypeScript
+- SCSS
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Getting Started
 
-```bash
-ng generate component component-name
-```
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Run the development server:
+   ```
+   ng serve
+   ```
+4. Navigate to `http://localhost:4200/`
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Design Guidelines
 
-```bash
-ng generate --help
-```
+- **Color Palette**: The application uses a primary color palette based on teal (#0f3531) and accent color of orange (#cf6329)
+- **Typography**: Roboto is used as the primary font
+- **Spacing**: Consistent 8px spacing system
+- **Elevation**: Material design elevation system for shadows and depth
 
-## Building
+## Best Practices
 
-To build the project run:
+- Responsive design with mobile-first approach
+- Proper component encapsulation
+- Performance optimization
+- Accessibility support
+- Consistent error handling
 
-```bash
-ng build
-```
+## License
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+MIT

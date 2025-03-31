@@ -1,47 +1,66 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-bar-chart',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './bar-chart.component.html',
   styleUrl: './bar-chart.component.scss'
 })
-export class BarChartComponent {
-
+export class BarChartComponent implements OnInit {
+  @ViewChild('chartCanvas') chartCanvas!: ElementRef;
   public chart: any;
+  private isBrowser: boolean;
 
-  ngOnInit(): void {
-    this.createChart();
+  constructor(@Inject(PLATFORM_ID) platformId: Object) {
+    this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  createChart(){
+  ngOnInit(): void {
+    // Only initialize chart in browser environment
+  }
 
-    this.chart = new Chart ("MyChart", {
-      type: 'bar', //this denotes tha type of chart
+  ngAfterViewInit() {
+    // Wait for the view to be initialized before creating the chart
+    if (this.isBrowser) {
+      this.createChart();
+    }
+  }
 
-      data: {// values on X-Axis
-        labels: ['2022-05-10', '2022-05-11', '2022-05-12','2022-05-13',
-								 '2022-05-14' ],
-	       datasets: [
+  createChart() {
+    if (!this.isBrowser || !this.chartCanvas) {
+      return;
+    }
+
+    const ctx = this.chartCanvas.nativeElement.getContext('2d');
+    if (!ctx) {
+      console.error('Could not get 2D context from canvas');
+      return;
+    }
+
+    this.chart = new Chart(ctx, {
+      type: 'bar', // this denotes the type of chart
+      data: {
+        // values on X-Axis
+        labels: ['2022-05-10', '2022-05-11', '2022-05-12', '2022-05-13', '2022-05-14'],
+        datasets: [
           {
             label: "Income",
-            data: ['467','576', '572', '79', '92',
-								],
+            data: ['467', '576', '572', '79', '92'],
             backgroundColor: '#0f3531'
           },
           {
             label: "Expenses",
-            data: ['542', '542', '536', '327', '17',
-									],
+            data: ['542', '542', '536', '327', '17'],
             backgroundColor: '#cf6329'
           }
         ]
       },
       options: {
-        aspectRatio:2.5
+        aspectRatio: 2.5
       }
-
     });
   }
 }

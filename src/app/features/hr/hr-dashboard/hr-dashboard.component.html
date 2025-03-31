@@ -1,0 +1,113 @@
+<div class="dashboard-container">
+  <!-- Loading Indicator -->
+  <div class="loading-overlay" *ngIf="isLoading$ | async">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <div class="dashboard-header">
+    <h1>HR Dashboard</h1>
+    <div class="user-greeting" *ngIf="currentUser">
+      Welcome, {{currentUser.name}}
+    </div>
+  </div>
+
+  <!-- KPI Cards Section -->
+  <div class="kpi-container">
+    <div *ngFor="let kpi of kpiData" class="kpi-card" [ngClass]="kpi.color">
+      <mat-card>
+        <mat-card-header>
+          <mat-icon mat-card-avatar>{{kpi.icon}}</mat-icon>
+          <mat-card-title>{{kpi.title}}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="kpi-value">{{kpi.value}}{{kpi.suffix}}</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="actions-section">
+    <h2>Quick Actions</h2>
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" (click)="navigateTo('/employees')">
+        <mat-icon>people</mat-icon> Manage Employees
+      </button>
+      <button mat-raised-button color="accent" (click)="navigateTo('/requests')">
+        <mat-icon>assignment</mat-icon> Manage Requests
+      </button>
+      <button mat-raised-button color="primary" (click)="navigateTo('/attendance')">
+        <mat-icon>access_time</mat-icon> Attendance Records
+      </button>
+      <button mat-raised-button color="warn" (click)="navigateTo('/warnings')">
+        <mat-icon>warning</mat-icon> Issue Warning
+      </button>
+    </div>
+  </div>
+
+  <!-- Announcements Section -->
+  <div class="announcements-section">
+    <div class="section-header">
+      <h2>Recent Announcements</h2>
+      <button mat-button color="primary" (click)="navigateTo('/announcements')">View All</button>
+    </div>
+    
+    <div class="announcement-list" *ngIf="(announcements$ | async) as announcements">
+      <mat-card *ngFor="let announcement of announcements" class="announcement-card"
+        [ngClass]="{'high-priority': announcement.priority === 'high', 
+                   'medium-priority': announcement.priority === 'medium'}">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>announcement</mat-icon>
+          <mat-card-title>{{announcement.title}}</mat-card-title>
+          <mat-card-subtitle>
+            {{announcement.createdDate | date: 'MMM dd, yyyy'}} 
+            <span *ngIf="announcement.priority === 'high'" class="priority-tag high">High Priority</span>
+            <span *ngIf="announcement.priority === 'medium'" class="priority-tag medium">Medium Priority</span>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{announcement.content}}</p>
+        </mat-card-content>
+        <mat-divider></mat-divider>
+        <mat-card-actions align="end">
+          <button mat-button color="primary">VIEW DETAILS</button>
+        </mat-card-actions>
+      </mat-card>
+      
+      <div *ngIf="announcements.length === 0" class="no-data">
+        No announcements to display
+      </div>
+    </div>
+  </div>
+
+  <!-- Employee Insights Section -->
+  <div class="employee-insights">
+    <div class="section-header">
+      <h2>Employee Insights</h2>
+      <button mat-button color="primary" (click)="navigateTo('/reports')">View Reports</button>
+    </div>
+    
+    <div class="insights-cards">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Attendance Rate</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-progress-bar mode="determinate" [value]="kpiData[3].value"></mat-progress-bar>
+          <div class="progress-value">{{kpiData[3].value}}%</div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>On-Time Rate</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-progress-bar mode="determinate" [value]="kpiData[4].value"></mat-progress-bar>
+          <div class="progress-value">{{kpiData[4].value}}%</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div> 

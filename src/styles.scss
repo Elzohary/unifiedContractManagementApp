@@ -1,18 +1,169 @@
-  /* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
 @use '../theme-colors' as my-theme;
 
+/* Custom color palette for the new design */
+:root {
+  --primary-dark-teal: #0f3531;
+  --accent-orange: #cf6329;
+  --dark-gray: #1b1d1d;
+  --white: #eff7f6;
+  --light-gray: #e0e5e5;
+}
+
 html, body { 
   height: 100%; 
+  overflow-x: hidden;
+}
 
-  p, h1, h2, h3, h4,  h5, h6, li {
-    font-size: 80% !important;
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Responsive typography */
+html {
+  font-size: 16px;
+}
+
+/* Mobile-first approach */
+p, h1, h2, h3, h4, h5, h6, li {
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1.1rem; }
+h5, h6 { font-size: 1rem; }
+p, li { font-size: 0.9rem; }
+
+/* Media queries for responsive design */
+@media screen and (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+  
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.3rem; }
+  h4 { font-size: 1.2rem; }
+  h5, h6 { font-size: 1.1rem; }
+  p, li { font-size: 1rem; }
+}
+
+@media screen and (min-width: 992px) {
+  html {
+    font-size: 18px;
   }
 }
 
+/* Responsive container styles */
+.container-fluid {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
 
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* Additional responsive utility classes */
+.responsive-container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
 
+@media (min-width: 576px) {
+  .responsive-container {
+    max-width: 540px;
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+  .responsive-container {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .responsive-container {
+    max-width: 1140px;
+  }
+}
+
+/* Responsive display utilities */
+.d-none {
+  display: none !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+@media (min-width: 576px) {
+  .d-sm-none {
+    display: none !important;
+  }
+  .d-sm-block {
+    display: block !important;
+  }
+  .d-sm-flex {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .d-md-none {
+    display: none !important;
+  }
+  .d-md-block {
+    display: block !important;
+  }
+  .d-md-flex {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .d-lg-none {
+    display: none !important;
+  }
+  .d-lg-block {
+    display: block !important;
+  }
+  .d-lg-flex {
+    display: flex !important;
+  }
+}
+
+/* Theme Transitions */
+.mat-mdc-button, 
+.mat-mdc-card,
+.mat-mdc-icon-button,
+.mat-mdc-table,
+.mat-mdc-raised-button,
+.mat-mdc-menu-panel,
+.mat-mdc-dialog-container,
+.mat-mdc-snack-bar-container,
+.mat-mdc-progress-bar {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* Theme styles */
 /* html {
   @include mat.theme((
     color: (
@@ -47,4 +198,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     typography: Roboto,
     density: 0
   ));
+  
+  /* Custom dark theme overrides */
+  & {
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --surface-overlay: rgba(30, 30, 30, 0.8);
+    color: var(--text-primary);
+  }
 }

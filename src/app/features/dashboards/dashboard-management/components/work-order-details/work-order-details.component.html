@@ -1,0 +1,225 @@
+<div class="work-order-details-container">
+  <!-- Loading and Error States -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <span>Loading work order details...</span>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon>error_outline</mat-icon>
+    <p>Error loading work order. It might not exist or has been deleted.</p>
+    <button mat-raised-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Work Orders
+    </button>
+  </div>
+
+  <!-- Work Order Details -->
+  <div *ngIf="workOrder && !loading && !error">
+    <!-- Header with navigation and title -->
+    <div class="page-header">
+      <div class="back-button">
+        <button mat-icon-button (click)="goBack()" matTooltip="Back to Work Orders">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      </div>
+      <div class="header-content">
+        <h1 class="page-title">
+          Work Order #{{ workOrder.orderNumber }}
+        </h1>
+        <div class="work-order-title">{{ workOrder.title }}</div>
+      </div>
+      <div class="actions">
+        <button mat-raised-button (click)="editWorkOrder()">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="content-wrapper">
+      <!-- Summary Card -->
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <mat-card-title>Work Order Summary</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="summary-content">
+            <div class="summary-row">
+              <div class="summary-item">
+                <div class="item-label">Status</div>
+                <div class="item-value">
+                  <span class="status-badge" [ngClass]="getStatusClass(workOrder.status)">
+                    {{ workOrder.status }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="summary-item">
+                <div class="item-label">Priority</div>
+                <div class="item-value">
+                  <span class="priority-badge" [ngClass]="getPriorityClass(workOrder.priority)">
+                    {{ workOrder.priority }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="summary-item">
+                <div class="item-label">Created On</div>
+                <div class="item-value">{{ formatDate(workOrder.createdDate) }}</div>
+              </div>
+              
+              <div class="summary-item">
+                <div class="item-label">Due Date</div>
+                <div class="item-value">{{ formatDate(workOrder.targetEndDate || workOrder.requestDate) }}</div>
+              </div>
+            </div>
+            
+            <div class="summary-row">
+              <div class="summary-item">
+                <div class="item-label">Client</div>
+                <div class="item-value">{{ workOrder.client.name }}</div>
+              </div>
+              
+              <div class="summary-item">
+                <div class="item-label">Site Location</div>
+                <div class="item-value">{{ workOrder.location.address }}</div>
+              </div>
+              
+              <div class="summary-item">
+                <div class="item-label">Engineer</div>
+                <div class="item-value">{{ workOrder.engineerInCharge?.name || 'Not Assigned' }}</div>
+              </div>
+              
+              <div class="summary-item">
+                <div class="item-label">Estimated Cost</div>
+                <div class="item-value">${{ workOrder.estimatedCost ? workOrder.estimatedCost.toLocaleString() : '0' }}</div>
+              </div>
+            </div>
+            
+            <mat-divider></mat-divider>
+            
+            <div class="progress-section">
+              <div class="progress-header">
+                <span>Completion Progress</span>
+                <span>{{ workOrder.completionPercentage }}%</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="workOrder.completionPercentage"></mat-progress-bar>
+            </div>
+            
+            <mat-divider></mat-divider>
+            
+            <div class="description-section">
+              <h3>Description</h3>
+              <p>{{ workOrder.description }}</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Tabs for additional information -->
+      <mat-card class="details-card">
+        <mat-card-header>
+          <mat-card-title>Additional Details</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-tab-group dynamicHeight animationDuration="300ms">
+            <!-- Tasks Tab -->
+            <mat-tab label="Tasks">
+              <div class="tab-content">
+                <h3>Work Order Tasks</h3>
+                <mat-list>
+                  <mat-list-item *ngFor="let task of workOrder.tasks; let i = index">
+                    <div class="task-item">
+                      <mat-icon matListItemIcon *ngIf="task.status === 'completed'">check_circle</mat-icon>
+                      <mat-icon matListItemIcon *ngIf="task.status !== 'completed'">pending</mat-icon>
+                      <div matListItemTitle>{{ task.name }}</div>
+                      <div matListItemLine>{{ task.description }}</div>
+                    </div>
+                  </mat-list-item>
+                  <div *ngIf="workOrder.tasks.length === 0" class="no-items">
+                    No tasks assigned to this work order
+                  </div>
+                </mat-list>
+              </div>
+            </mat-tab>
+            
+            <!-- Materials Tab -->
+            <mat-tab label="Materials">
+              <div class="tab-content">
+                <h3>Required Materials</h3>
+                <mat-list>
+                  <mat-list-item *ngFor="let material of workOrder.materials; let i = index">
+                    <div class="material-item">
+                      <mat-icon matListItemIcon>inventory_2</mat-icon>
+                      <div matListItemTitle>{{ material.name }}</div>
+                      <div matListItemLine>Quantity: {{ material.quantity }} {{ material.unit }} • Status: {{ material.status }}</div>
+                    </div>
+                  </mat-list-item>
+                  <div *ngIf="workOrder.materials.length === 0" class="no-items">
+                    No materials listed for this work order
+                  </div>
+                </mat-list>
+              </div>
+            </mat-tab>
+            
+            <!-- Team Tab -->
+            <mat-tab label="Team">
+              <div class="tab-content">
+                <h3>Assigned Team</h3>
+                <mat-list>
+                  <mat-list-item *ngFor="let member of workOrder.manpower; let i = index">
+                    <div class="team-item">
+                      <mat-icon matListItemIcon>person</mat-icon>
+                      <div matListItemTitle>{{ member.user.name }}</div>
+                      <div matListItemLine>{{ member.role }} • {{ member.user.email }}</div>
+                    </div>
+                  </mat-list-item>
+                  <div *ngIf="workOrder.manpower.length === 0" class="no-items">
+                    No team members assigned to this work order
+                  </div>
+                </mat-list>
+              </div>
+            </mat-tab>
+            
+            <!-- Notes Tab -->
+            <mat-tab label="Notes">
+              <div class="tab-content">
+                <h3>Notes</h3>
+                <div *ngFor="let note of workOrder.notes; let i = index" class="note-item">
+                  <div class="note-header">
+                    <span class="note-author">{{ note.createdBy.name }}</span>
+                    <span class="note-date">{{ formatDate(note.createdDate) }}</span>
+                  </div>
+                  <div class="note-content">{{ note.content }}</div>
+                </div>
+                <div *ngIf="workOrder.notes.length === 0" class="no-items">
+                  No notes for this work order
+                </div>
+              </div>
+            </mat-tab>
+            
+            <!-- Issues Tab -->
+            <mat-tab label="Issues" *ngIf="workOrder?.issues && workOrder.issues.length > 0">
+              <div class="tab-content">
+                <h3>Reported Issues</h3>
+                <mat-list>
+                  <mat-list-item *ngFor="let issue of workOrder.issues; let i = index">
+                    <div class="issue-item">
+                      <mat-icon matListItemIcon [color]="issue.priority === 'critical' ? 'warn' : ''">
+                        {{ issue.status === 'resolved' || issue.status === 'closed' ? 'check_circle' : 'report_problem' }}
+                      </mat-icon>
+                      <div matListItemTitle>{{ issue.title }}</div>
+                      <div matListItemLine>{{ issue.description }}</div>
+                    </div>
+                  </mat-list-item>
+                </mat-list>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div> 

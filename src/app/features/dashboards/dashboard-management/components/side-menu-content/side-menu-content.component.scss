@@ -58,3 +58,75 @@ width: 100%;
 border: none;
 border-radius: 0.5rem;
 }
+
+.sidenav-content {
+  padding: 12px 0;
+}
+
+.nav-section {
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.nav-section-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: #84919A;
+  padding: 16px 16px 8px;
+  margin: 0;
+}
+
+// Active link styling
+.active-link {
+  background-color: rgba(15, 53, 49, 0.08);
+  color: #0f3531;
+  font-weight: 500;
+  
+  .mat-icon {
+    color: #0f3531;
+  }
+}
+
+// Badge styling
+.badge {
+  background-color: #cf6329;
+  color: white;
+  font-size: 11px;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-weight: bold;
+}
+
+// Dark theme overrides
+:host-context(.dark-theme) {
+  .nav-section-title {
+    color: #a5adab;
+  }
+  
+  .active-link {
+    background-color: rgba(195, 234, 228, 0.1);
+    color: #c3eae4;
+    
+    .mat-icon {
+      color: #c3eae4;
+    }
+  }
+  
+  .mat-mdc-list-item .mat-icon {
+    color: #a5adab;
+  }
+  
+  .mat-mdc-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+// Animation for menu items
+.mat-mdc-list-item {
+  transition: background-color 0.2s, color 0.2s;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}

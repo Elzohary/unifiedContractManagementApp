@@ -44,5 +44,46 @@ export const projectMenuItems = [
                 link: 'workorders/expenses'
             }
         ]
+    },
+    {
+        label: 'HR Management',
+        icon: 'people',
+        subItems: [
+            {
+                label: 'Dashboard',
+                link: '/hr/dashboard',
+                icon: 'dashboard'
+            },
+            {
+                label: 'Employees',
+                link: '/hr/employees',
+                icon: 'badge'
+            },
+            {
+                label: 'Requests',
+                link: '/hr/requests',
+                icon: 'assignment'
+            },
+            {
+                label: 'Attendance',
+                link: '/hr/attendance',
+                icon: 'access_time'
+            },
+            {
+                label: 'Warnings',
+                link: '/hr/warnings',
+                icon: 'warning'
+            },
+            {
+                label: 'Announcements',
+                link: '/hr/announcements',
+                icon: 'announcement'
+            },
+            {
+                label: 'Reports',
+                link: '/hr/reports',
+                icon: 'bar_chart'
+            }
+        ]
     }
 ];

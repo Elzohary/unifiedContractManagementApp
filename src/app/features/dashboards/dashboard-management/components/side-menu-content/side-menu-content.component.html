@@ -1,37 +1,179 @@
-<section>
-  <div class="container-md menu-header d-flex justify-content-between">
-    <img class="img-fluid mw-25 w-25 h-25" src="../../../../../../assets/Primavera - SUC.png" alt="Logo">
-    <mat-chip class="example-box" cdkDrag>V 1.0</mat-chip>
-  </div>
-
-  <mat-divider></mat-divider>
-
-  <div class="menuContent container">
-    <mat-tab-group mat-stretch-tabs="true" mat-align-tabs="start">
-      <mat-tab label="Projects">
-        <p class="mt-3 px-3 title">
-          DASHBOARD
-        </p>
-        <ul class="px-0">
-          @for(item of projectMenu; track item.label) {
-            <a>
-              <li class="item my-2 px-3"> {{item.label}} </li>
-            </a>
-            <ul>
-              @if(item.subItems) {
-                @for(subitem of item.subItems; track subitem.label) {
-                  <a [routerLink]="subitem.link" routerLinkActive="activeSubItem">
-                    <li class="subItem py-2 px-3"> {{subitem.label}} </li>
-                  </a>
-                }
-              }
-            </ul>
-          }
-        </ul>
-      </mat-tab>
-
-      <!-- <mat-tab label="Company">
-        <p class="tab m-3">Coming Soon!</p>
-      </mat-tab> -->
-    </mat-tab-group>
-  </div>
+<div class="sidenav-content">
+  <mat-nav-list>
+    <div class="nav-section">
+      <h3 class="nav-section-title">Dashboard</h3>
+      
+      <!-- Main Dashboard Link -->
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Overview</span>
+      </a>
+      
+      <!-- Analytics Link -->
+      <a mat-list-item routerLink="/dashboard/analytics" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>insights</mat-icon>
+        <span matListItemTitle>Analytics</span>
+      </a>
+    </div>
+    
+    <mat-divider></mat-divider>
+    
+    <div class="nav-section">
+      <h3 class="nav-section-title">Work Orders</h3>
+      
+      <!-- All Work Orders -->
+      <a mat-list-item routerLink="/work-orders/all" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>assignment</mat-icon>
+        <span matListItemTitle>All Work Orders</span>
+      </a>
+      
+      <!-- Create New -->
+      <a mat-list-item routerLink="/work-orders/new" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>add_circle</mat-icon>
+        <span matListItemTitle>Create New</span>
+      </a>
+      
+      <!-- In Progress -->
+      <a mat-list-item routerLink="/work-orders/in-progress" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>engineering</mat-icon>
+        <span matListItemTitle>In Progress</span>
+        <div matListItemMeta>
+          <span class="badge">5</span>
+        </div>
+      </a>
+      
+      <!-- Pending -->
+      <a mat-list-item routerLink="/work-orders/pending" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>pending</mat-icon>
+        <span matListItemTitle>Pending Approval</span>
+        <div matListItemMeta>
+          <span class="badge">2</span>
+        </div>
+      </a>
+      
+      <!-- Completed -->
+      <a mat-list-item routerLink="/work-orders/completed" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>task_alt</mat-icon>
+        <span matListItemTitle>Completed</span>
+      </a>
+    </div>
+    
+    <mat-divider></mat-divider>
+    
+    <div class="nav-section">
+      <h3 class="nav-section-title">Resources</h3>
+      
+      <!-- Manpower -->
+      <a mat-list-item routerLink="/resources/manpower" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>people</mat-icon>
+        <span matListItemTitle>Manpower</span>
+      </a>
+      
+      <!-- Equipment -->
+      <a mat-list-item routerLink="/resources/equipment" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>construction</mat-icon>
+        <span matListItemTitle>Equipment</span>
+      </a>
+      
+      <!-- Materials -->
+      <a mat-list-item routerLink="/resources/materials" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>inventory_2</mat-icon>
+        <span matListItemTitle>Materials</span>
+      </a>
+    </div>
+    
+    <mat-divider></mat-divider>
+    
+    <div class="nav-section">
+      <h3 class="nav-section-title">HR Management</h3>
+      
+      <!-- HR Dashboard -->
+      <a mat-list-item routerLink="/hr/dashboard" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>HR Dashboard</span>
+      </a>
+      
+      <!-- Employees -->
+      <a mat-list-item routerLink="/hr/employees" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>badge</mat-icon>
+        <span matListItemTitle>Employees</span>
+      </a>
+      
+      <!-- Requests -->
+      <a mat-list-item routerLink="/hr/requests" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>assignment</mat-icon>
+        <span matListItemTitle>Requests</span>
+      </a>
+      
+      <!-- Attendance -->
+      <a mat-list-item routerLink="/hr/attendance" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>access_time</mat-icon>
+        <span matListItemTitle>Attendance</span>
+      </a>
+      
+      <!-- Warnings -->
+      <a mat-list-item routerLink="/hr/warnings" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>warning</mat-icon>
+        <span matListItemTitle>Warnings</span>
+      </a>
+      
+      <!-- Announcements -->
+      <a mat-list-item routerLink="/hr/announcements" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>announcement</mat-icon>
+        <span matListItemTitle>Announcements</span>
+      </a>
+      
+      <!-- HR Reports -->
+      <a mat-list-item routerLink="/hr/reports" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>bar_chart</mat-icon>
+        <span matListItemTitle>HR Reports</span>
+      </a>
+    </div>
+    
+    <mat-divider></mat-divider>
+    
+    <div class="nav-section">
+      <h3 class="nav-section-title">Reports</h3>
+      
+      <!-- Reports Menu -->
+      <a mat-list-item [matMenuTriggerFor]="reportsMenu">
+        <mat-icon matListItemIcon>summarize</mat-icon>
+        <span matListItemTitle>Reports</span>
+        <mat-icon matListItemMeta>expand_more</mat-icon>
+      </a>
+      
+      <mat-menu #reportsMenu="matMenu" class="submenu">
+        <a mat-menu-item routerLink="/reports/monthly">
+          <mat-icon>calendar_today</mat-icon>
+          <span>Monthly Review</span>
+        </a>
+        <a mat-menu-item routerLink="/reports/performance">
+          <mat-icon>analytics</mat-icon>
+          <span>Performance</span>
+        </a>
+        <a mat-menu-item routerLink="/reports/custom">
+          <mat-icon>tune</mat-icon>
+          <span>Custom Report</span>
+        </a>
+      </mat-menu>
+    </div>
+    
+    <mat-divider></mat-divider>
+    
+    <div class="nav-section">
+      <h3 class="nav-section-title">Administration</h3>
+      
+      <!-- Users -->
+      <a mat-list-item routerLink="/admin/users" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>manage_accounts</mat-icon>
+        <span matListItemTitle>Users</span>
+      </a>
+      
+      <!-- Settings -->
+      <a mat-list-item routerLink="/admin/settings" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>settings</mat-icon>
+        <span matListItemTitle>Settings</span>
+      </a>
+    </div>
+  </mat-nav-list>
+</div>

@@ -1,45 +1,143 @@
-<div class="conrainer px-3 z">
-  <h1 class="fw-bold fs-2">Work Orders</h1>
+<div class="work-orders-container">
+  <mat-card class="page-card">
+    <mat-card-header>
+      <div class="page-header">
+        <div class="title-section">
+          <h1 class="page-title">{{ pageTitle }}</h1>
+          <p class="page-subtitle">Manage and track all construction work orders</p>
+        </div>
+        <div class="actions-section">
+          <button mat-raised-button color="primary" (click)="createNewWorkOrder()">
+            <mat-icon>add</mat-icon>
+            New Work Order
+          </button>
+        </div>
+      </div>
+    </mat-card-header>
 
-  <div class="d-flex justify-content-between align-items-center m-0">
-    <mat-form-field class="filter w-25 d-flex align-items-end flex-column">
-      <mat-label class="w-25">Filter Work Orders...</mat-label>
-      <input matInput (keyup)="applyFilter($event)" #input>
-    </mat-form-field>
+    <mat-card-content>
+      <!-- Filters and search -->
+      <div class="filters-container">
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Search work orders...</mat-label>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Search by ID, title, client...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
 
-    <button mat-stroked-button color="primary">Add New WO +</button>
-  </div>
+        <div class="status-filters">
+          <mat-chip-listbox aria-label="Status selection">
+            <mat-chip-option (click)="filterByStatus('')" [selected]="statusFilter === ''">All</mat-chip-option>
+            <mat-chip-option (click)="filterByStatus('in-progress')" [selected]="statusFilter === 'in-progress'" color="primary">In Progress</mat-chip-option>
+            <mat-chip-option (click)="filterByStatus('pending')" [selected]="statusFilter === 'pending'" color="accent">Pending</mat-chip-option>
+            <mat-chip-option (click)="filterByStatus('completed')" [selected]="statusFilter === 'completed'" color="warn">Completed</mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+      </div>
 
-  <mat-table mat-table [dataSource]="dataSource" class="mat-elevation-z8 demo-table">
-    <!-- Id Column -->
-    <ng-container matColumnDef="wo-id">
-      <mat-header-cell mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
-    </ng-container>
+      <!-- Loading indicator -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Loading work orders...</span>
+      </div>
 
-    <!-- Location Column -->
-    <ng-container matColumnDef="wo-location">
-      <mat-header-cell mat-header-cell *matHeaderCellDef> Location </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element"> {{element.location}} </mat-cell>
-    </ng-container>
+      <!-- Work orders table -->
+      <div class="table-container" *ngIf="!loading">
+        <table mat-table [dataSource]="dataSource" class="work-orders-table mat-elevation-z2">
+          <!-- Order Number Column -->
+          <ng-container matColumnDef="orderNumber">
+            <th mat-header-cell *matHeaderCellDef>WO #</th>
+            <td mat-cell *matCellDef="let workOrder" class="id-cell">{{ workOrder.orderNumber }}</td>
+          </ng-container>
 
-    <!-- Type Column -->
-    <ng-container matColumnDef="wo-type">
-      <mat-header-cell mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element"> {{element.type}} </mat-cell>
-    </ng-container>
+          <!-- Title Column -->
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>Title</th>
+            <td mat-cell *matCellDef="let workOrder">
+              <div class="title-container">
+                <div class="wo-title">{{ workOrder.title }}</div>
+                <div class="wo-description">{{ workOrder.description | slice:0:60 }}{{ workOrder.description.length > 60 ? '...' : '' }}</div>
+              </div>
+            </td>
+          </ng-container>
 
-    <!-- Status Column -->
-    <ng-container matColumnDef="wo-status">
-      <mat-header-cell mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element"> {{element.status}} </mat-cell>
-    </ng-container>
+          <!-- Client Column -->
+          <ng-container matColumnDef="client">
+            <th mat-header-cell *matHeaderCellDef>Client</th>
+            <td mat-cell *matCellDef="let workOrder">{{ workOrder.client.name }}</td>
+          </ng-container>
 
-    <mat-header-row class="fw-bold tableHeader" mat-header-row
-      *matHeaderRowDef="displayedColumns sticky: true"></mat-header-row>
-    <mat-row mat-row *matRowDef="let row; columns: displayedColumns;" routerLink="/dashboard/work-order"></mat-row>
-  </mat-table>
+          <!-- Priority Column -->
+          <ng-container matColumnDef="priority">
+            <th mat-header-cell *matHeaderCellDef>Priority</th>
+            <td mat-cell *matCellDef="let workOrder">
+              <span class="priority-badge" [ngClass]="getPriorityClass(workOrder.priority)">
+                {{ workOrder.priority }}
+              </span>
+            </td>
+          </ng-container>
 
-  <mat-paginator [pageSizeOptions]="[30, 40, 50]" showFirstLastButtons aria-label="Select page of periodic elements">
-  </mat-paginator>
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let workOrder">
+              <span class="status-badge" [ngClass]="getStatusClass(workOrder.status)">
+                {{ workOrder.status }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Completion Percentage Column -->
+          <ng-container matColumnDef="completionPercentage">
+            <th mat-header-cell *matHeaderCellDef>Progress</th>
+            <td mat-cell *matCellDef="let workOrder">
+              <div class="progress-container">
+                <div class="progress-bar" [style.width.%]="workOrder.completionPercentage"></div>
+                <span class="progress-text">{{ workOrder.completionPercentage }}%</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let workOrder">
+              <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Work order actions">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="viewWorkOrder(workOrder.id)">
+                  <mat-icon>visibility</mat-icon>
+                  <span>View Details</span>
+                </button>
+                <button mat-menu-item>
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+                <button mat-menu-item>
+                  <mat-icon>assignment_turned_in</mat-icon>
+                  <span>Mark Complete</span>
+                </button>
+              </mat-menu>
+              <button mat-icon-button color="primary" (click)="viewWorkOrder(workOrder.id)" matTooltip="View Details" aria-label="View work order details">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="work-order-row" (click)="viewWorkOrder(row.id)"></tr>
+          
+          <!-- No results row -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+              No work orders found matching the filter.
+            </td>
+          </tr>
+        </table>
+
+        <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons aria-label="Select page of work orders">
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>
