@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +19,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { WorkOrderService } from '../../../../../shared/services/work-order.service';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { WorkOrder, Task, Material, Manpower, Note } from '../../../../../shared/models/work-order.model';
+import { WorkOrderPriority, WorkOrderStatus } from '../../../../../shared/models/work-order.model';
 
 @Component({
   selector: 'app-work-order-form',
@@ -46,15 +47,17 @@ import { WorkOrder, Task, Material, Manpower, Note } from '../../../../../shared
   templateUrl: './work-order-form.component.html',
   styleUrl: './work-order-form.component.scss'
 })
-export class WorkOrderFormComponent implements OnInit {
+export class WorkOrderFormComponent implements OnInit, AfterViewInit {
   workOrderForm!: FormGroup;
+  taskForm!: FormGroup;
   isEditMode = false;
-  loading = false;
+  loading = true; // Start with loading true
+  formReady = false; // Flag to indicate form is ready
   saving = false;
   workOrderId = '';
   
-  priorities = ['low', 'medium', 'high', 'urgent'];
-  statuses = ['draft', 'pending', 'in-progress', 'completed', 'cancelled'];
+  priorities: WorkOrderPriority[] = ['low', 'medium', 'high', 'critical'];
+  statuses: WorkOrderStatus[] = ['pending', 'in-progress', 'completed', 'cancelled', 'on-hold'];
   categories = [
     'Residential Construction',
     'Commercial Construction',
@@ -75,19 +78,37 @@ export class WorkOrderFormComponent implements OnInit {
     private workOrderService: WorkOrderService,
     private route: ActivatedRoute,
     private router: Router
-  ) { }
+  ) {
+    // Initialize form in constructor
+    this.initForm();
+  }
 
   ngOnInit(): void {
-    this.initForm();
-    
+    // Check ID parameter and load data if in edit mode
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.isEditMode = true;
         this.workOrderId = id;
         this.loadWorkOrder(id);
+      } else {
+        // If new work order, just set loading to false
+        setTimeout(() => {
+          this.loading = false;
+          this.formReady = true;
+        }, 100);
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    // After view is initialized, ensure form is displayed correctly
+    setTimeout(() => {
+      this.formReady = true;
+      if (!this.isEditMode) {
+        this.loading = false;
+      }
+    }, 100);
   }
 
   private initForm(): void {
@@ -99,35 +120,61 @@ export class WorkOrderFormComponent implements OnInit {
         name: ['', Validators.required],
         contactEmail: ['', [Validators.required, Validators.email]],
         contactPhone: ['', Validators.required],
-        contactPerson: ['']
+        contactPerson: ['', Validators.required]
       }),
-      siteLocation: ['', Validators.required],
+      location: this.fb.group({
+        address: ['', Validators.required]
+      }),
       category: ['', Validators.required],
+      department: ['', Validators.required],
       priority: ['medium', Validators.required],
-      status: ['draft', Validators.required],
+      status: ['pending', Validators.required],
       estimatedCost: [0, [Validators.required, Validators.min(0)]],
       completionPercentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
-      startDate: [new Date(), Validators.required],
-      targetEndDate: [new Date(new Date().setMonth(new Date().getMonth() + 1)), Validators.required],
+      startDate: [new Date().toISOString(), Validators.required],
+      targetEndDate: [new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(), Validators.required],
+      assignedTo: [[], Validators.required],
+      engineerInCharge: this.fb.group({
+        name: ['']
+      }),
       tasks: this.fb.array([]),
       materials: this.fb.array([]),
       manpower: this.fb.array([]),
-      notes: this.fb.array([])
+      notes: this.fb.array([]),
+      issues: this.fb.array([]),
+      remarks: this.fb.array([]),
+      actions: this.fb.array([]),
+      photos: this.fb.array([]),
+      forms: this.fb.array([]),
+      expenses: this.fb.array([]),
+      invoices: this.fb.array([])
     });
   }
 
   loadWorkOrder(id: string): void {
     this.loading = true;
+    this.formReady = false;
+    
     this.workOrderService.getWorkOrderById(id).subscribe({
       next: (workOrder) => {
         if (workOrder) {
           this.populateForm(workOrder);
         }
-        this.loading = false;
+        
+        // Add a small delay to ensure UI renders properly
+        setTimeout(() => {
+          this.loading = false;
+          this.formReady = true;
+        }, 200);
       },
       error: (err) => {
         console.error('Error loading work order:', err);
-        this.loading = false;
+        
+        // Even on error, we should still allow the form to be used
+        setTimeout(() => {
+          this.loading = false;
+          this.formReady = true;
+        }, 200);
       }
     });
   }
@@ -144,9 +191,14 @@ export class WorkOrderFormComponent implements OnInit {
       workOrder.tasks.forEach(task => {
         this.tasksFormArray.push(
           this.fb.group({
-            name: [task.name, Validators.required],
+            id: [task.id],
+            name: [task.title, Validators.required],
             description: [task.description],
-            status: [task.status]
+            status: [task.status],
+            startDate: [task.startDate],
+            endDate: [task.dueDate],
+            assignedTo: [task.assignedTo],
+            priority: [task.priority]
           })
         );
       });
@@ -155,43 +207,47 @@ export class WorkOrderFormComponent implements OnInit {
     // Add materials
     if (workOrder.materials && workOrder.materials.length > 0) {
       workOrder.materials.forEach(material => {
-        this.materialsFormArray.push(
-          this.fb.group({
-            name: [material.name, Validators.required],
-            quantity: [material.quantity, [Validators.required, Validators.min(1)]],
-            unit: [material.unit, Validators.required],
-            status: [material.status]
-          })
-        );
+        const materialControls = this.fb.group({
+          id: [material.id],
+          name: [material.name],
+          description: [material.description || ''],
+          quantity: [material.quantity],
+          unit: [material.unit],
+          status: [material.status],
+          cost: [(material as any).cost],
+          receivedDate: [(material as any).receivedDate]
+        });
+        this.materialsFormArray.push(materialControls);
       });
     }
     
     // Add manpower (team)
-    if (workOrder.manpower && workOrder.manpower.length > 0) {
-      workOrder.manpower.forEach(member => {
+    if ((workOrder as any).manpower && (workOrder as any).manpower.length > 0) {
+      (workOrder as any).manpower.forEach((member: any) => {
         this.manpowerFormArray.push(
           this.fb.group({
-            user: this.fb.group({
-              name: [member.user.name, Validators.required],
-              email: [member.user.email, [Validators.required, Validators.email]]
-            }),
+            id: [member.id],
+            userId: [member.userId, Validators.required],
             role: [member.role, Validators.required],
-            hoursAssigned: [member.hoursAssigned || 0]
+            hoursAssigned: [member.hoursAssigned, [Validators.required, Validators.min(1)]],
+            startDate: [member.startDate, Validators.required],
+            endDate: [member.endDate],
+            notes: [member.notes]
           })
         );
       });
     }
     
     // Add notes
-    if (workOrder.notes && workOrder.notes.length > 0) {
-      workOrder.notes.forEach(note => {
+    if ((workOrder as any).notes && (workOrder as any).notes.length > 0) {
+      (workOrder as any).notes.forEach((note: any) => {
         this.notesFormArray.push(
           this.fb.group({
+            id: [note.id],
             content: [note.content, Validators.required],
-            createdBy: this.fb.group({
-              name: [note.createdBy.name]
-            }),
-            createdDate: [new Date(note.createdDate)]
+            createdBy: [note.createdBy],
+            createdDate: [note.createdDate],
+            updatedDate: [note.updatedDate]
           })
         );
       });
@@ -208,14 +264,19 @@ export class WorkOrderFormComponent implements OnInit {
         contactPhone: workOrder.client.contactPhone,
         contactPerson: workOrder.client.contactPerson
       },
-      siteLocation: workOrder.location.address,
-      category: this.getCategory(workOrder.title),
+      location: {
+        address: workOrder.location.address
+      },
+      category: workOrder.category,
+      department: workOrder.department,
       priority: workOrder.priority,
       status: workOrder.status,
       estimatedCost: workOrder.estimatedCost,
       completionPercentage: workOrder.completionPercentage,
-      startDate: workOrder.startDate ? new Date(workOrder.startDate) : new Date(),
-      targetEndDate: workOrder.targetEndDate ? new Date(workOrder.targetEndDate) : new Date(new Date().setMonth(new Date().getMonth() + 1))
+      startDate: workOrder.startDate,
+      targetEndDate: workOrder.targetEndDate,
+      assignedTo: workOrder.assignedTo,
+      engineerInCharge: workOrder.engineerInCharge
     });
   }
 
@@ -362,5 +423,21 @@ export class WorkOrderFormComponent implements OnInit {
     } else {
       this.router.navigate(['/work-orders']);
     }
+  }
+
+  createTaskForm(task: Task = {} as Task): FormGroup {
+    this.taskForm = this.fb.group({
+      id: [task.id],
+      name: [task.title, Validators.required],
+      description: [task.description],
+      status: [task.status],
+      startDate: [task.startDate],
+      endDate: [task.dueDate],
+      assignedTo: [task.assignedTo],
+      priority: [task.priority],
+      completed: [task.completed || false],
+      workOrderId: [this.workOrderId]
+    });
+    return this.taskForm;
   }
 } 

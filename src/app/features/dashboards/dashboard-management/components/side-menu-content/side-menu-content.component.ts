@@ -27,7 +27,5 @@ import { projectMenuItems } from '../../models/menu-items';
   styleUrl: './side-menu-content.component.scss'
 })
 export class SideMenuContentComponent {
-
   projectMenu = projectMenuItems;
-
 }

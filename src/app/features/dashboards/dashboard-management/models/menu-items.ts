@@ -1,47 +1,89 @@
 export const projectMenuItems = [
     {
-        label: 'Overview',
+        label: 'Dashboard',
+        icon: 'dashboard',
         subItems: [
             {
-                label: 'All Projects',
-                link: 'overview'
+                label: 'Overview',
+                link: '/dashboard/overview',
+                icon: 'home'
             },
+            {
+                label: 'Analytics',
+                link: '/dashboard/analytics',
+                icon: 'analytics'
+            }
         ]
     },
     {
         label: 'Work Orders',
+        icon: 'work',
         subItems: [
             {
                 label: 'All Work Orders',
-                link: 'all-work-orders'
+                link: '/work-orders/all',
+                icon: 'list'
             },
             {
                 label: 'Remarks',
-                link: 'workorders/remarks'
+                link: '/work-order-sections/remarks',
+                icon: 'comment'
             },
             {
-                label: 'issues',
-                link: 'workorders/issues'
+                label: 'Issues',
+                link: '/work-order-sections/issues',
+                icon: 'error'
             },
             {
                 label: 'Actions Needed',
-                link: 'workorders/action-needed'
+                link: '/work-order-sections/actions',
+                icon: 'assignment'
             },
             {
-                label: 'All Materials',
-                link: 'workorders-all-materials'
+                label: 'Materials',
+                link: '/work-order-sections/materials',
+                icon: 'inventory'
             },
             {
-                label: 'All Photos',
-                link: 'workorders-all-photos'
+                label: 'Photos',
+                link: '/work-order-sections/photos',
+                icon: 'photo_library'
             },
             {
                 label: 'Forms',
-                link: 'workorders/forms'
+                link: '/work-order-sections/forms',
+                icon: 'description'
             },
             {
                 label: 'Expenses',
-                link: 'workorders/expenses'
+                link: '/work-order-sections/expenses',
+                icon: 'attach_money'
+            },
+            {
+                label: 'Invoices',
+                link: '/work-order-sections/invoices',
+                icon: 'receipt'
+            }
+        ]
+    },
+    {
+        label: 'Resources',
+        icon: 'inventory_2',
+        subItems: [
+            {
+                label: 'Manpower',
+                link: '/resources/manpower',
+                icon: 'people'
+            },
+            {
+                label: 'Equipment',
+                link: '/resources/equipment',
+                icon: 'build'
+            },
+            {
+                label: 'Materials',
+                link: '/resources/materials',
+                icon: 'category'
             }
         ]
     },
@@ -78,11 +120,43 @@ export const projectMenuItems = [
                 label: 'Announcements',
                 link: '/hr/announcements',
                 icon: 'announcement'
+            }
+        ]
+    },
+    {
+        label: 'Reports',
+        icon: 'assessment',
+        subItems: [
+            {
+                label: 'Monthly Reports',
+                link: '/reports/monthly',
+                icon: 'calendar_today'
             },
             {
-                label: 'Reports',
-                link: '/hr/reports',
-                icon: 'bar_chart'
+                label: 'Performance Reports',
+                link: '/reports/performance',
+                icon: 'trending_up'
+            },
+            {
+                label: 'Custom Reports',
+                link: '/reports/custom',
+                icon: 'tune'
+            }
+        ]
+    },
+    {
+        label: 'Administration',
+        icon: 'admin_panel_settings',
+        subItems: [
+            {
+                label: 'User Management',
+                link: '/admin/users',
+                icon: 'manage_accounts'
+            },
+            {
+                label: 'Settings',
+                link: '/admin/settings',
+                icon: 'settings'
             }
         ]
     }

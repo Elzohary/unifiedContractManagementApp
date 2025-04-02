@@ -1,6 +1,6 @@
-# Unified Contract Management App
+# Unified Work Order Management App
 
-A modern Angular application for managing contracts, built with Angular Material design system.
+A modern Angular application for managing work orders, built with Angular Material design system.
 
 ## Features
 

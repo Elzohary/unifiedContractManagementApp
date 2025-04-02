@@ -1,0 +1,100 @@
+/* Angular Material custom theme */
+:root {
+  --mdc-tab-indicator-active-indicator-color: var(--primary);
+  --mat-tab-header-active-label-text-color: var(--primary);
+  --mat-tab-header-active-ripple-color: var(--primary);
+  --mat-tab-header-inactive-label-text-color: var(--text-secondary);
+  --mat-tab-header-active-focus-label-text-color: var(--primary);
+  --mat-tab-header-active-hover-label-text-color: var(--primary);
+  --mat-tab-header-active-focus-indicator-color: var(--primary);
+  --mat-tab-header-active-hover-indicator-color: var(--primary);
+  
+  --mdc-filled-text-field-container-color: var(--white);
+  --mdc-filled-text-field-active-indicator-color: var(--primary);
+  --mdc-filled-text-field-focus-active-indicator-color: var(--primary);
+  --mdc-filled-text-field-hover-active-indicator-color: var(--primary);
+  --mdc-filled-text-field-label-text-color: var(--text-secondary);
+  --mdc-filled-text-field-focus-label-text-color: var(--primary);
+  --mdc-filled-text-field-hover-label-text-color: var(--text-primary);
+  --mdc-filled-text-field-input-text-color: var(--text-primary);
+  --mdc-filled-text-field-caret-color: var(--primary);
+  
+  --mdc-dialog-container-color: var(--white);
+  --mdc-dialog-subhead-color: var(--text-primary);
+  --mdc-dialog-supporting-text-color: var(--text-secondary);
+  
+  --mdc-menu-container-color: var(--white);
+  --mdc-menu-item-label-text-color: var(--text-primary);
+  --mdc-menu-item-hover-state-layer-color: var(--primary-light);
+  --mdc-menu-item-selected-state-layer-color: var(--primary-light);
+}
+
+/* Enhanced styles for Material components */
+.mat-mdc-card {
+  border-radius: var(--border-radius-base);
+  box-shadow: var(--shadow-base);
+  transition: box-shadow 0.3s ease;
+  
+  &:hover {
+    box-shadow: var(--shadow-drawer);
+  }
+}
+
+/* Improved input field styles */
+.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    border-radius: var(--border-radius-base);
+  }
+  
+  .mat-mdc-form-field-flex {
+    padding: 0 12px;
+  }
+  
+  .mat-mdc-form-field-infix {
+    padding: 8px 0;
+  }
+  
+  .mat-mdc-form-field-subscript-wrapper {
+    padding: 0 12px;
+  }
+}
+
+/* Enhanced tab styles */
+.mat-mdc-tab-group {
+  .mat-mdc-tab-header {
+    border-bottom: 1px solid var(--border-color-split);
+  }
+  
+  .mat-mdc-tab {
+    min-width: 120px;
+    padding: 0 16px;
+    height: 48px;
+    
+    .mdc-tab__content {
+      padding: 0 8px;
+    }
+  }
+  
+  .mat-mdc-tab-body-wrapper {
+    padding: 24px;
+  }
+}
+
+/* Improved dropdown styles */
+.mat-mdc-select-panel {
+  border-radius: var(--border-radius-base);
+  box-shadow: var(--shadow-drawer);
+  
+  .mat-mdc-option {
+    min-height: 40px;
+    padding: 0 16px;
+    
+    &:hover {
+      background-color: var(--primary-light);
+    }
+    
+    &.mat-mdc-option-active {
+      background-color: var(--primary-light);
+    }
+  }
+} 

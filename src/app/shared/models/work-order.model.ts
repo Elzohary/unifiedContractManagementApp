@@ -7,16 +7,20 @@ export interface User {
 }
 
 export interface Task {
-  id: string;
-  name: string;
-  description: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'delayed';
-  startDate?: Date;
-  endDate?: Date;
-  assignedTo?: User;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  completionPercentage: number;
-  dependencies?: string[]; // IDs of tasks that must be completed before this one
+  id: string | number;
+  title: string;
+  description?: string;
+  assignedTo?: string;
+  dueDate?: Date | string;
+  startDate?: Date | string;
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  status?: 'pending' | 'in-progress' | 'completed' | 'delayed';
+  completed?: boolean;
+  workOrderId?: string | number;
+  attachments?: string[];
+  createdBy?: string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 export interface LogEntry {
@@ -31,10 +35,14 @@ export interface LogEntry {
 export interface Permit {
   id: string;
   type: string; // e.g., 'Municipality', 'Electrical', 'Plumbing', etc.
+  title: string;
+  description: string;
+  number: string;
   issueDate: Date;
   expiryDate: Date;
   status: 'pending' | 'approved' | 'rejected' | 'expired';
   issuedBy: string;
+  authority: string;
   documentRef: string;
   attachments?: Attachment[];
 }
@@ -44,8 +52,8 @@ export interface Manpower {
   user: User;
   role: string;
   hoursAssigned: number;
-  startDate: Date;
-  endDate?: Date;
+  startDate: string;
+  endDate?: string;
   notes?: string;
 }
 
@@ -64,10 +72,15 @@ export interface Equipment {
 export interface Material {
   id: string;
   name: string;
+  description?: string;
   quantity: number;
-  unit: string; // e.g., 'kg', 'liters', 'pieces', etc.
-  deliveryDate?: Date;
-  status: 'pending' | 'delivered' | 'used' | 'excess';
+  unit: string;
+  unitCost?: number;
+  totalCost?: number;
+  status: string;
+  supplier?: string;
+  orderDate?: string | Date;
+  deliveryDate?: string | Date;
 }
 
 export interface Issue {
@@ -88,8 +101,8 @@ export interface Note {
   id: string;
   content: string;
   createdBy: User;
-  createdDate: Date;
-  updatedDate?: Date;
+  createdDate: string;
+  updatedDate?: string;
   attachments?: Attachment[];
 }
 
@@ -104,52 +117,180 @@ export interface Attachment {
 }
 
 export interface Client {
-  id: string;
+  id?: string;
   name: string;
   contactPerson: string;
   contactEmail: string;
   contactPhone: string;
-  address: string;
+  address?: string;
+  notes?: string;
 }
 
 export interface Location {
-  id: string;
-  name: string;
   address: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
   coordinates?: {
     latitude: number;
     longitude: number;
   };
 }
 
+export type WorkOrderStatus = 'pending' | 'in-progress' | 'completed' | 'cancelled' | 'on-hold';
+export type WorkOrderPriority = 'low' | 'medium' | 'high' | 'critical';
+
 export interface WorkOrder {
   id: string;
   orderNumber: string;
   title: string;
   description: string;
-  client: Client;
-  location: Location;
-  status: 'draft' | 'pending' | 'approved' | 'in-progress' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  requestDate: Date;
-  startDate?: Date;
-  targetEndDate?: Date;
-  actualEndDate?: Date;
-  engineerInCharge?: User;
-  tasks: Task[];
-  logs: LogEntry[];
-  permits: Permit[];
-  manpower: Manpower[];
-  equipment: Equipment[];
-  materials: Material[];
-  issues: Issue[];
-  notes: Note[];
+  status: WorkOrderStatus;
+  priority: WorkOrderPriority;
+  category: string;
+  department: string;
+  startDate: string | Date;
+  dueDate: string | Date;
+  targetEndDate?: string | Date;
   completionPercentage: number;
-  estimatedCost?: number;
-  actualCost?: number;
-  attachments?: Attachment[];
-  createdBy: User;
-  createdDate: Date;
-  lastUpdatedBy?: User;
-  lastUpdatedDate?: Date;
+  estimatedCost: number;
+  location: Location;
+  client: Client;
+  assignedTo: string[];
+  remarks: WorkOrderRemark[];
+  engineerInCharge?: {
+    id: string;
+    name: string;
+  };
+  actionsNeeded?: ActionItem[];
+  createdDate: string | Date;
+  createdBy: string;
+  lastUpdated?: string | Date;
+  issues: WorkOrderIssue[];
+  materials?: Material[];
+  permits?: Permit[];
+  
+  // Additional properties used in services and mock data
+  tasks?: Task[];
+  manpower?: Manpower[];
+  notes?: Note[];
+  actions?: WorkOrderAction[];
+  photos?: WorkOrderPhoto[];
+  forms?: WorkOrderForm[];
+  expenses?: WorkOrderExpense[];
+  invoices?: WorkOrderInvoice[];
+  expenseBreakdown?: {
+    materials: number;
+    labor: number;
+    other: number;
+  };
+}
+
+export interface WorkOrderIssue {
+  id: string;
+  title: string;
+  description: string;
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high';
+  severity: 'low' | 'medium' | 'high';
+  reportedBy: string;
+  reportedDate: string | Date;
+  assignedTo?: string;
+  resolutionDate?: string | Date;
+  resolutionNotes?: string;
+}
+
+export interface WorkOrderMaterial {
+  id: string;
+  name: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  status: 'pending' | 'ordered' | 'received' | 'used';
+  cost?: number;
+  supplier?: string;
+  orderDate?: string;
+  receivedDate?: string;
+}
+
+export interface WorkOrderRemark {
+  id: string;
+  content: string;
+  createdDate: string;
+  createdBy: string;
+  type: 'general' | 'technical' | 'safety' | 'quality' | string;
+  workOrderId: string;
+  peopleInvolved?: string[]; // IDs of people involved who should be notified
+}
+
+export interface WorkOrderAction {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  priority: WorkOrderPriority;
+  assignedTo: string;
+  dueDate: string;
+  completedDate?: string;
+  completedBy?: string;
+}
+
+export interface WorkOrderPhoto {
+  id: string;
+  url: string;
+  caption: string;
+  uploadedDate: string;
+  uploadedBy: string;
+  type: 'before' | 'during' | 'after' | 'issue';
+}
+
+export interface WorkOrderForm {
+  id: string;
+  title: string;
+  type: 'checklist' | 'inspection' | 'safety' | 'quality' | 'other';
+  status: 'pending' | 'completed';
+  submittedDate?: string;
+  submittedBy?: string;
+  url: string;
+}
+
+export interface WorkOrderExpense {
+  id: string;
+  description: string;
+  amount: number;
+  currency: string;
+  category: string;
+  date: string;
+  submittedBy: string;
+  status: 'pending' | 'approved' | 'rejected';
+  approvedBy?: string;
+  approvedDate?: string;
+  receipt?: string;
+}
+
+export interface WorkOrderInvoice {
+  id: string;
+  number: string;
+  amount: number;
+  currency: string;
+  issueDate: string;
+  dueDate: string;
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  paidDate?: string;
+  paidBy?: string;
+  url: string;
+}
+
+export interface ActionItem {
+  id: string;
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high';
+  status: string;
+  dueDate: string | Date;
+  assignedTo?: string;
+  completedDate?: string | Date;
+  completedBy?: string;
+  notes?: string;
 } 

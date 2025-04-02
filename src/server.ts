@@ -1,66 +1,55 @@
-import {
-  AngularNodeAppEngine,
-  createNodeRequestHandler,
-  isMainModule,
-  writeResponseToNodeResponse,
-} from '@angular/ssr/node';
-import express from 'express';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-const browserDistFolder = resolve(serverDistFolder, '../browser');
+const express = require('express');
+import { Request, Response, NextFunction } from 'express';
+const path = require('path');
+const compression = require('compression');
+const cors = require('cors');
+const morgan = require('morgan');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+const port = process.env['PORT'] || 3000;
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+// Enable CORS
+app.use(cors());
 
-/**
- * Serve static files from /browser
- */
-app.use(
-  express.static(browserDistFolder, {
-    maxAge: '1y',
-    index: false,
-    redirect: false,
-  }),
-);
+// Enable request logging
+app.use(morgan('dev'));
 
-/**
- * Handle all other requests by rendering the Angular application.
- */
-app.use('/**', (req, res, next) => {
-  angularApp
-    .handle(req)
-    .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next(),
-    )
-    .catch(next);
+// Enable gzip compression
+app.use(compression());
+
+// Parse JSON bodies
+app.use(express.json());
+
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from the 'dist' directory
+app.use(express.static(path.join(__dirname, 'dist/unified-contract-management-app/browser'), {
+  setHeaders: (res: Response, filePath: string) => {
+    // Set caching headers for static files
+    if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|ico)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    }
+  }
+}));
+
+// API routes
+app.get('/api/health', (req: Request, res: Response) => {
+  res.json({ status: 'ok' });
 });
 
-/**
- * Start the server if this module is the main entry point.
- * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
- */
-if (isMainModule(import.meta.url)) {
-  const port = process.env['PORT'] || 4000;
-  app.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
-}
+// Handle all other routes by serving the index.html file
+app.use('/**', (req: Request, res: Response, next: NextFunction) => {
+  res.sendFile(path.join(__dirname, 'dist/unified-contract-management-app/browser/index.html'));
+});
 
-/**
- * The request handler used by the Angular CLI (dev-server and during build).
- */
-export const reqHandler = createNodeRequestHandler(app);
+// Error handling middleware
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});

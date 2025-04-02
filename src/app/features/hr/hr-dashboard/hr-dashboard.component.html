@@ -1,113 +1,143 @@
-<div class="dashboard-container">
-  <!-- Loading Indicator -->
-  <div class="loading-overlay" *ngIf="isLoading$ | async">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading dashboard data...</p>
-  </div>
+<!-- Check if this is a temporary route -->
+<div *ngIf="isTempRoute" class="coming-soon-container">
+  <mat-icon class="coming-soon-icon">engineering</mat-icon>
+  <h2>{{ tempRouteMessage }}</h2>
+  <p>This feature is currently under development and will be available soon.</p>
+  <button mat-raised-button color="primary" routerLink="/hr/dashboard">Back to HR Dashboard</button>
+</div>
 
+<!-- Regular dashboard content -->
+<div *ngIf="!isTempRoute" class="dashboard-container">
   <div class="dashboard-header">
     <h1>HR Dashboard</h1>
-    <div class="user-greeting" *ngIf="currentUser">
-      Welcome, {{currentUser.name}}
-    </div>
+    <p>Welcome back! Here's what's happening with your team today.</p>
   </div>
 
-  <!-- KPI Cards Section -->
-  <div class="kpi-container">
-    <div *ngFor="let kpi of kpiData" class="kpi-card" [ngClass]="kpi.color">
-      <mat-card>
-        <mat-card-header>
-          <mat-icon mat-card-avatar>{{kpi.icon}}</mat-icon>
-          <mat-card-title>{{kpi.title}}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="kpi-value">{{kpi.value}}{{kpi.suffix}}</div>
-        </mat-card-content>
-      </mat-card>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-icon primary">
+          <mat-icon>group</mat-icon>
+        </div>
+        <h3 class="stat-title">Total Employees</h3>
+      </div>
+      <p class="stat-value">{{totalEmployees}}</p>
+      <div class="stat-trend positive">
+        <mat-icon>trending_up</mat-icon>
+        <span>+12% from last month</span>
+      </div>
     </div>
-  </div>
 
-  <!-- Quick Actions -->
-  <div class="actions-section">
-    <h2>Quick Actions</h2>
-    <div class="action-buttons">
-      <button mat-raised-button color="primary" (click)="navigateTo('/employees')">
-        <mat-icon>people</mat-icon> Manage Employees
-      </button>
-      <button mat-raised-button color="accent" (click)="navigateTo('/requests')">
-        <mat-icon>assignment</mat-icon> Manage Requests
-      </button>
-      <button mat-raised-button color="primary" (click)="navigateTo('/attendance')">
-        <mat-icon>access_time</mat-icon> Attendance Records
-      </button>
-      <button mat-raised-button color="warn" (click)="navigateTo('/warnings')">
-        <mat-icon>warning</mat-icon> Issue Warning
-      </button>
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-icon accent">
+          <mat-icon>pending_actions</mat-icon>
+        </div>
+        <h3 class="stat-title">Pending Requests</h3>
+      </div>
+      <p class="stat-value">{{pendingRequests}}</p>
+      <div class="stat-trend negative">
+        <mat-icon>trending_down</mat-icon>
+        <span>-5% from last week</span>
+      </div>
     </div>
-  </div>
 
-  <!-- Announcements Section -->
-  <div class="announcements-section">
-    <div class="section-header">
-      <h2>Recent Announcements</h2>
-      <button mat-button color="primary" (click)="navigateTo('/announcements')">View All</button>
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-icon warning">
+          <mat-icon>person_off</mat-icon>
+        </div>
+        <h3 class="stat-title">Absent Today</h3>
+      </div>
+      <p class="stat-value">{{absentToday}}</p>
+      <div class="stat-trend positive">
+        <mat-icon>trending_up</mat-icon>
+        <span>+2% from yesterday</span>
+      </div>
     </div>
-    
-    <div class="announcement-list" *ngIf="(announcements$ | async) as announcements">
-      <mat-card *ngFor="let announcement of announcements" class="announcement-card"
-        [ngClass]="{'high-priority': announcement.priority === 'high', 
-                   'medium-priority': announcement.priority === 'medium'}">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>announcement</mat-icon>
-          <mat-card-title>{{announcement.title}}</mat-card-title>
-          <mat-card-subtitle>
-            {{announcement.createdDate | date: 'MMM dd, yyyy'}} 
-            <span *ngIf="announcement.priority === 'high'" class="priority-tag high">High Priority</span>
-            <span *ngIf="announcement.priority === 'medium'" class="priority-tag medium">Medium Priority</span>
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{announcement.content}}</p>
-        </mat-card-content>
-        <mat-divider></mat-divider>
-        <mat-card-actions align="end">
-          <button mat-button color="primary">VIEW DETAILS</button>
-        </mat-card-actions>
-      </mat-card>
-      
-      <div *ngIf="announcements.length === 0" class="no-data">
-        No announcements to display
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-icon success">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <h3 class="stat-title">Active Warnings</h3>
+      </div>
+      <p class="stat-value">{{activeWarnings}}</p>
+      <div class="stat-trend negative">
+        <mat-icon>trending_down</mat-icon>
+        <span>-8% from last month</span>
       </div>
     </div>
   </div>
 
-  <!-- Employee Insights Section -->
-  <div class="employee-insights">
-    <div class="section-header">
-      <h2>Employee Insights</h2>
-      <button mat-button color="primary" (click)="navigateTo('/reports')">View Reports</button>
-    </div>
-    
-    <div class="insights-cards">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Attendance Rate</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-progress-bar mode="determinate" [value]="kpiData[3].value"></mat-progress-bar>
-          <div class="progress-value">{{kpiData[3].value}}%</div>
-        </mat-card-content>
-      </mat-card>
-      
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>On-Time Rate</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-progress-bar mode="determinate" [value]="kpiData[4].value"></mat-progress-bar>
-          <div class="progress-value">{{kpiData[4].value}}%</div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+  <div class="features-grid">
+    <mat-card class="feature-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>person_add</mat-icon>
+          Employee Onboarding
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Streamline the onboarding process for new employees with our comprehensive checklist and automated workflows.</p>
+        <div class="feature-actions">
+          <button mat-raised-button color="primary">Start Onboarding</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="feature-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>event_note</mat-icon>
+          Performance Reviews
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Schedule and manage performance reviews with our intuitive review system and feedback templates.</p>
+        <div class="feature-actions">
+          <button mat-raised-button color="primary">Schedule Review</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="feature-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>work_off</mat-icon>
+          Leave Management
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Handle leave requests, approvals, and tracking with our automated leave management system.</p>
+        <div class="feature-actions">
+          <button mat-raised-button color="primary">View Requests</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
+
+  <mat-card class="recent-activities">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>history</mat-icon>
+        Recent Activities
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let activity of recentActivities">
+          <div class="activity-icon" [ngClass]="activity.type">
+            <mat-icon>{{activity.icon}}</mat-icon>
+          </div>
+          <div class="activity-content">
+            <h4 class="activity-title">{{activity.title}}</h4>
+            <p class="activity-description">{{activity.description}}</p>
+            <span class="activity-time">{{activity.time}}</span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div> 

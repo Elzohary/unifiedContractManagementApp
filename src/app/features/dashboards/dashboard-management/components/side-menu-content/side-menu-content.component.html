@@ -4,7 +4,7 @@
       <h3 class="nav-section-title">Dashboard</h3>
       
       <!-- Main Dashboard Link -->
-      <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
+      <a mat-list-item routerLink="/dashboard/overview" routerLinkActive="active-link">
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>Overview</span>
       </a>
@@ -27,34 +27,57 @@
         <span matListItemTitle>All Work Orders</span>
       </a>
       
-      <!-- Create New -->
-      <a mat-list-item routerLink="/work-orders/new" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>add_circle</mat-icon>
-        <span matListItemTitle>Create New</span>
+      <!-- Details Subsections -->
+      <a mat-list-item routerLink="/work-order-sections/remarks" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>comment</mat-icon>
+        <span matListItemTitle>Remarks</span>
       </a>
       
-      <!-- In Progress -->
-      <a mat-list-item routerLink="/work-orders/in-progress" routerLinkActive="active-link">
+      <a mat-list-item routerLink="/work-order-sections/issues" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>report_problem</mat-icon>
+        <span matListItemTitle>Issues</span>
+      </a>
+      
+      <a mat-list-item routerLink="/work-order-sections/actions" routerLinkActive="active-link">
         <mat-icon matListItemIcon>engineering</mat-icon>
-        <span matListItemTitle>In Progress</span>
-        <div matListItemMeta>
-          <span class="badge">5</span>
-        </div>
+        <span matListItemTitle>Actions Needed</span>
       </a>
       
-      <!-- Pending -->
-      <a mat-list-item routerLink="/work-orders/pending" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>pending</mat-icon>
-        <span matListItemTitle>Pending Approval</span>
-        <div matListItemMeta>
-          <span class="badge">2</span>
-        </div>
+      <a mat-list-item routerLink="/work-order-sections/materials" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>inventory_2</mat-icon>
+        <span matListItemTitle>Materials</span>
       </a>
       
-      <!-- Completed -->
-      <a mat-list-item routerLink="/work-orders/completed" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>task_alt</mat-icon>
-        <span matListItemTitle>Completed</span>
+      <a mat-list-item routerLink="/work-order-sections/photos" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>photo_library</mat-icon>
+        <span matListItemTitle>Photos</span>
+      </a>
+      
+      <a mat-list-item routerLink="/work-order-sections/forms" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>description</mat-icon>
+        <span matListItemTitle>Forms</span>
+      </a>
+      
+      <a mat-list-item routerLink="/work-order-sections/expenses" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>monetization_on</mat-icon>
+        <span matListItemTitle>Expenses</span>
+      </a>
+      
+      <a mat-list-item routerLink="/work-order-sections/invoices" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>receipt</mat-icon>
+        <span matListItemTitle>Invoices</span>
+      </a>
+      
+      <!-- Activity Log -->
+      <a mat-list-item routerLink="/activity-log" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>history</mat-icon>
+        <span matListItemTitle>Activity Log</span>
+      </a>
+      
+      <!-- Activity Dashboard -->
+      <a mat-list-item routerLink="/activity-dashboard" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>radar</mat-icon>
+        <span matListItemTitle>Activity Tracking</span>
       </a>
     </div>
     

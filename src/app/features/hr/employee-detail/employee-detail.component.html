@@ -14,7 +14,8 @@
       
       <div class="header-content">
         <div class="employee-avatar">
-          <img [src]="employee.photo || 'assets/images/default-avatar.png'" alt="Employee photo">
+          <img *ngIf="employee.photo" [src]="employee.photo" alt="Employee photo">
+          <mat-icon *ngIf="!employee.photo" class="avatar-icon">person</mat-icon>
         </div>
         
         <div class="employee-info">

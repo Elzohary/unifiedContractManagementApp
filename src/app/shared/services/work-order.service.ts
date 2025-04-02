@@ -1,651 +1,804 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
-import { WorkOrder, User, Task, Issue, Permit, Manpower, Equipment, Material, Note, LogEntry } from '../models/work-order.model';
+import { BehaviorSubject, Observable, of, throwError, from, timer } from 'rxjs';
+import { map, catchError, switchMap, delay, mergeMap, tap } from 'rxjs/operators';
+import { WorkOrder, WorkOrderStatus, WorkOrderPriority, WorkOrderRemark, WorkOrderIssue, Task } from '../models/work-order.model';
+import { ActivityLogService } from './activity-log.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WorkOrderService {
-  private mockUsers: User[] = [
-    {
-      id: 'user1',
-      name: 'John Smith',
-      email: 'john.smith@example.com',
-      role: 'administrator',
-      avatar: 'assets/avatars/avatar1.png'
-    },
-    {
-      id: 'user2',
-      name: 'Alice Johnson',
-      email: 'alice.johnson@example.com',
-      role: 'engineer',
-      avatar: 'assets/avatars/avatar2.png'
-    },
-    {
-      id: 'user3',
-      name: 'Robert Davis',
-      email: 'robert.davis@example.com',
-      role: 'foreman',
-      avatar: 'assets/avatars/avatar3.png'
-    },
-    {
-      id: 'user4',
-      name: 'Michael Wong',
-      email: 'michael.wong@example.com',
-      role: 'worker',
-      avatar: 'assets/avatars/avatar4.png'
-    }
-  ];
-
   private mockWorkOrders: WorkOrder[] = [
     {
       id: 'wo1',
-      orderNumber: 'WO-2023-001',
+      orderNumber: 'WO-2024-001',
       title: 'Commercial Building Renovation',
       description: 'Renovation of the 3rd floor office space at Downtown Business Center',
-      client: {
-        id: 'client1',
-        name: 'ABC Corporation',
-        contactPerson: 'Jane Wilson',
-        contactEmail: 'jane.wilson@abccorp.com',
-        contactPhone: '555-123-4567',
-        address: '123 Business Ave, Downtown'
-      },
+      status: 'in-progress' as WorkOrderStatus,
+      priority: 'high' as WorkOrderPriority,
+      createdDate: new Date().toISOString(),
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      startDate: new Date().toISOString(),
+      targetEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      assignedTo: ['user1', 'user2'],
       location: {
-        id: 'loc1',
-        name: 'Downtown Business Center',
-        address: '123 Business Ave, Downtown',
-        coordinates: {
-          latitude: 34.052235,
-          longitude: -118.243683
-        }
+        address: '123 Business Street, Downtown Business Center'
       },
-      status: 'in-progress',
-      priority: 'high',
-      requestDate: new Date('2023-09-01'),
-      startDate: new Date('2023-09-10'),
-      targetEndDate: new Date('2023-10-30'),
-      engineerInCharge: this.mockUsers[1], // Alice Johnson
-      tasks: [
-        {
-          id: 'task1',
-          name: 'Site Assessment',
-          description: 'Initial assessment of the site and requirements',
-          status: 'completed',
-          startDate: new Date('2023-09-10'),
-          endDate: new Date('2023-09-12'),
-          assignedTo: this.mockUsers[1],
-          priority: 'high',
-          completionPercentage: 100
-        },
-        {
-          id: 'task2',
-          name: 'Municipality Permit',
-          description: 'Obtain necessary permits from the local municipality',
-          status: 'completed',
-          startDate: new Date('2023-09-13'),
-          endDate: new Date('2023-09-20'),
-          assignedTo: this.mockUsers[0],
-          priority: 'high',
-          completionPercentage: 100
-        },
-        {
-          id: 'task3',
-          name: 'Material Procurement',
-          description: 'Order and receive all necessary materials',
-          status: 'in-progress',
-          startDate: new Date('2023-09-21'),
-          assignedTo: this.mockUsers[2],
-          priority: 'medium',
-          completionPercentage: 60
-        },
-        {
-          id: 'task4',
-          name: 'Demolition Work',
-          description: 'Remove existing partition walls and fixtures',
-          status: 'in-progress',
-          startDate: new Date('2023-09-25'),
-          assignedTo: this.mockUsers[2],
-          priority: 'medium',
-          completionPercentage: 75,
-          dependencies: ['task1', 'task2']
-        },
-        {
-          id: 'task5',
-          name: 'Electrical Installation',
-          description: 'Install new electrical wiring and fixtures',
-          status: 'pending',
-          priority: 'medium',
-          completionPercentage: 0,
-          dependencies: ['task4']
-        }
-      ],
-      logs: [
-        {
-          id: 'log1',
-          date: new Date('2023-09-10'),
-          action: 'Work Order Started',
-          description: 'Initial site visit and assessment completed',
-          createdBy: this.mockUsers[1]
-        },
-        {
-          id: 'log2',
-          date: new Date('2023-09-20'),
-          action: 'Permit Approved',
-          description: 'Municipality permit approved and received',
-          createdBy: this.mockUsers[0]
-        },
-        {
-          id: 'log3',
-          date: new Date('2023-09-25'),
-          action: 'Demolition Started',
-          description: 'Demolition work has begun on the 3rd floor',
-          createdBy: this.mockUsers[2]
-        }
-      ],
-      permits: [
-        {
-          id: 'permit1',
-          type: 'Municipality',
-          issueDate: new Date('2023-09-20'),
-          expiryDate: new Date('2023-12-20'),
-          status: 'approved',
-          issuedBy: 'City Planning Department',
-          documentRef: 'MPR-2023-4567'
-        }
-      ],
-      manpower: [
-        {
-          id: 'mp1',
-          user: this.mockUsers[2],
-          role: 'Foreman',
-          hoursAssigned: 160,
-          startDate: new Date('2023-09-10')
-        },
-        {
-          id: 'mp2',
-          user: this.mockUsers[3],
-          role: 'Construction Worker',
-          hoursAssigned: 160,
-          startDate: new Date('2023-09-25')
-        }
-      ],
-      equipment: [
-        {
-          id: 'equip1',
-          name: 'Excavator',
-          type: 'Heavy Equipment',
-          serialNumber: 'EX-2021-789',
-          quantity: 1,
-          assignedFrom: new Date('2023-09-25'),
-          assignedTo: new Date('2023-10-05'),
-          status: 'in-use'
-        },
-        {
-          id: 'equip2',
-          name: 'Concrete Mixer',
-          type: 'Heavy Equipment',
-          serialNumber: 'CM-2020-456',
-          quantity: 2,
-          assignedFrom: new Date('2023-10-01'),
-          status: 'available'
-        }
-      ],
-      materials: [
-        {
-          id: 'mat1',
-          name: 'Cement',
-          quantity: 50,
-          unit: 'bags',
-          deliveryDate: new Date('2023-09-22'),
-          status: 'delivered'
-        },
-        {
-          id: 'mat2',
-          name: 'Steel Reinforcement',
-          quantity: 200,
-          unit: 'kg',
-          status: 'pending'
-        }
-      ],
-      issues: [
-        {
-          id: 'issue1',
-          title: 'Unexpected Plumbing Layout',
-          description: 'Discovered existing plumbing layout differs from blueprints',
-          priority: 'high',
-          status: 'in-progress',
-          createdBy: this.mockUsers[2],
-          createdDate: new Date('2023-09-26'),
-          assignedTo: this.mockUsers[1]
-        }
-      ],
-      notes: [
-        {
-          id: 'note1',
-          content: 'Client requested additional power outlets on the north wall',
-          createdBy: this.mockUsers[1],
-          createdDate: new Date('2023-09-15')
-        },
-        {
-          id: 'note2',
-          content: 'Building inspection scheduled for Oct 15',
-          createdBy: this.mockUsers[0],
-          createdDate: new Date('2023-09-28')
-        }
-      ],
-      completionPercentage: 45,
-      estimatedCost: 75000,
-      actualCost: 35000,
-      createdBy: this.mockUsers[0],
-      createdDate: new Date('2023-08-28')
+      category: 'Renovation',
+      department: 'Facilities',
+      client: {
+        name: 'Acme Corporation',
+        contactPerson: 'John Doe',
+        contactEmail: 'john.doe@acme.com',
+        contactPhone: '+1-555-0123'
+      },
+      engineerInCharge: {
+        id: 'eng1',
+        name: 'Jane Smith'
+      },
+      estimatedCost: 50000,
+      completionPercentage: 35,
+      createdBy: 'Admin',
+      tasks: [],
+      manpower: [],
+      notes: [],
+      issues: [],
+      materials: [],
+      remarks: [],
+      actions: [],
+      actionsNeeded: [],
+      photos: [],
+      forms: [],
+      expenses: [],
+      invoices: []
     },
     {
       id: 'wo2',
-      orderNumber: 'WO-2023-002',
-      title: 'Residential Plumbing Repair',
-      description: 'Emergency plumbing repair at Sunset Apartments, Unit 302',
-      client: {
-        id: 'client2',
-        name: 'Sunset Apartments',
-        contactPerson: 'Tom Garcia',
-        contactEmail: 'manager@sunsetapts.com',
-        contactPhone: '555-987-6543',
-        address: '456 Sunset Blvd, Westside'
-      },
+      orderNumber: 'WO-2024-002',
+      title: 'Electrical System Upgrade',
+      description: 'Upgrade of electrical panel and wiring in the main office building',
+      status: 'pending' as WorkOrderStatus,
+      priority: 'urgent' as WorkOrderPriority,
+      createdDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+      startDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      targetEndDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+      assignedTo: ['user3'],
       location: {
-        id: 'loc2',
-        name: 'Sunset Apartments',
-        address: '456 Sunset Blvd, Westside',
-        coordinates: {
-          latitude: 34.076124,
-          longitude: -118.375694
-        }
+        address: '456 Main Avenue, Tech Park'
       },
-      status: 'completed',
-      priority: 'urgent',
-      requestDate: new Date('2023-09-15'),
-      startDate: new Date('2023-09-16'),
-      targetEndDate: new Date('2023-09-18'),
-      actualEndDate: new Date('2023-09-17'),
-      engineerInCharge: this.mockUsers[1],
-      tasks: [
-        {
-          id: 'task6',
-          name: 'Plumbing Assessment',
-          description: 'Assess the extent of water damage and identify leak source',
-          status: 'completed',
-          startDate: new Date('2023-09-16'),
-          endDate: new Date('2023-09-16'),
-          assignedTo: this.mockUsers[1],
-          priority: 'urgent',
-          completionPercentage: 100
-        },
-        {
-          id: 'task7',
-          name: 'Pipe Replacement',
-          description: 'Replace damaged pipes and connectors',
-          status: 'completed',
-          startDate: new Date('2023-09-16'),
-          endDate: new Date('2023-09-17'),
-          assignedTo: this.mockUsers[3],
-          priority: 'urgent',
-          completionPercentage: 100,
-          dependencies: ['task6']
-        }
-      ],
-      logs: [
-        {
-          id: 'log4',
-          date: new Date('2023-09-16'),
-          action: 'Work Order Started',
-          description: 'Emergency response to reported water leak',
-          createdBy: this.mockUsers[1]
-        },
-        {
-          id: 'log5',
-          date: new Date('2023-09-17'),
-          action: 'Work Order Completed',
-          description: 'Plumbing repairs completed and tested',
-          createdBy: this.mockUsers[1]
-        }
-      ],
-      permits: [],
-      manpower: [
-        {
-          id: 'mp3',
-          user: this.mockUsers[3],
-          role: 'Plumber',
-          hoursAssigned: 8,
-          startDate: new Date('2023-09-16'),
-          endDate: new Date('2023-09-17')
-        }
-      ],
-      equipment: [],
-      materials: [
-        {
-          id: 'mat3',
-          name: 'Copper Pipe',
-          quantity: 5,
-          unit: 'meters',
-          deliveryDate: new Date('2023-09-16'),
-          status: 'used'
-        },
-        {
-          id: 'mat4',
-          name: 'Pipe Fittings',
-          quantity: 10,
-          unit: 'pieces',
-          deliveryDate: new Date('2023-09-16'),
-          status: 'used'
-        }
-      ],
+      category: 'Electrical',
+      department: 'Facilities',
+      client: {
+        name: 'TechCorp Solutions',
+        contactPerson: 'Sarah Johnson',
+        contactEmail: 'sarah.j@techcorp.com',
+        contactPhone: '+1-555-4567'
+      },
+      engineerInCharge: {
+        id: 'eng2',
+        name: 'Robert Chen'
+      },
+      estimatedCost: 25000,
+      completionPercentage: 0,
+      createdBy: 'Admin',
+      tasks: [],
+      manpower: [],
+      notes: [],
       issues: [],
-      notes: [
-        {
-          id: 'note3',
-          content: 'Recommended regular maintenance check for other units in the building',
-          createdBy: this.mockUsers[3],
-          createdDate: new Date('2023-09-17')
-        }
-      ],
-      completionPercentage: 100,
-      estimatedCost: 1200,
-      actualCost: 950,
-      createdBy: this.mockUsers[0],
-      createdDate: new Date('2023-09-15'),
-      lastUpdatedBy: this.mockUsers[1],
-      lastUpdatedDate: new Date('2023-09-17')
+      materials: [],
+      remarks: [],
+      actions: [],
+      actionsNeeded: [],
+      photos: [],
+      forms: [],
+      expenses: [],
+      invoices: []
     },
     {
       id: 'wo3',
-      orderNumber: 'WO-2023-003',
-      title: 'School Playground Installation',
-      description: 'Installation of new playground equipment at Lincoln Elementary School',
-      client: {
-        id: 'client3',
-        name: 'Lincoln Elementary School',
-        contactPerson: 'Principal Sarah Chen',
-        contactEmail: 'principal@lincolnelementary.edu',
-        contactPhone: '555-234-5678',
-        address: '789 Education St, Northside'
-      },
+      orderNumber: 'WO-2024-003',
+      title: 'HVAC Maintenance',
+      description: 'Quarterly maintenance of HVAC systems in all floors',
+      status: 'completed' as WorkOrderStatus,
+      priority: 'medium' as WorkOrderPriority,
+      createdDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+      dueDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      startDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      targetEndDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      assignedTo: ['user4', 'user5'],
       location: {
-        id: 'loc3',
-        name: 'Lincoln Elementary School',
-        address: '789 Education St, Northside'
+        address: '789 Corporate Blvd, Business Park'
       },
-      status: 'pending',
-      priority: 'medium',
-      requestDate: new Date('2023-09-20'),
-      targetEndDate: new Date('2023-11-15'),
-      tasks: [
-        {
-          id: 'task8',
-          name: 'Site Preparation',
-          description: 'Clear and level the designated playground area',
-          status: 'pending',
-          priority: 'medium',
-          completionPercentage: 0
-        },
-        {
-          id: 'task9',
-          name: 'Equipment Installation',
-          description: 'Install playground equipment according to specifications',
-          status: 'pending',
-          priority: 'medium',
-          completionPercentage: 0,
-          dependencies: ['task8']
-        },
-        {
-          id: 'task10',
-          name: 'Safety Inspection',
-          description: 'Conduct safety inspection of installed equipment',
-          status: 'pending',
-          priority: 'high',
-          completionPercentage: 0,
-          dependencies: ['task9']
-        }
-      ],
-      logs: [
-        {
-          id: 'log6',
-          date: new Date('2023-09-20'),
-          action: 'Work Order Created',
-          description: 'Playground installation project initiated',
-          createdBy: this.mockUsers[0]
-        }
-      ],
-      permits: [
-        {
-          id: 'permit2',
-          type: 'School Board Approval',
-          issueDate: new Date('2023-09-18'),
-          expiryDate: new Date('2023-12-18'),
-          status: 'approved',
-          issuedBy: 'District School Board',
-          documentRef: 'SB-2023-789'
-        }
-      ],
+      category: 'HVAC',
+      department: 'Maintenance',
+      client: {
+        name: 'Global Enterprises',
+        contactPerson: 'Michael Wong',
+        contactEmail: 'm.wong@global.com',
+        contactPhone: '+1-555-7890'
+      },
+      engineerInCharge: {
+        id: 'eng3',
+        name: 'Lisa Turner'
+      },
+      estimatedCost: 12000,
+      completionPercentage: 100,
+      createdBy: 'Admin',
+      tasks: [],
       manpower: [],
-      equipment: [],
-      materials: [],
+      notes: [],
       issues: [],
-      notes: [
-        {
-          id: 'note4',
-          content: 'Project scheduled to start after school hours and weekends to minimize disruption',
-          createdBy: this.mockUsers[0],
-          createdDate: new Date('2023-09-20')
-        }
-      ],
+      materials: [],
+      remarks: [],
+      actions: [],
+      actionsNeeded: [],
+      photos: [],
+      forms: [],
+      expenses: [],
+      invoices: []
+    },
+    {
+      id: 'wo4',
+      orderNumber: 'WO-2024-004',
+      title: 'Plumbing Repair',
+      description: 'Emergency repair of leaking pipe in server room',
+      status: 'in-progress' as WorkOrderStatus,
+      priority: 'urgent' as WorkOrderPriority,
+      createdDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      startDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      targetEndDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      assignedTo: ['user6'],
+      location: {
+        address: '101 Tech Avenue, Data Center'
+      },
+      category: 'Plumbing',
+      department: 'Emergency',
+      client: {
+        name: 'DataHost Inc',
+        contactPerson: 'Alex Rivera',
+        contactEmail: 'alex@datahost.com',
+        contactPhone: '+1-555-1234'
+      },
+      engineerInCharge: {
+        id: 'eng4',
+        name: 'David Park'
+      },
+      estimatedCost: 8000,
+      completionPercentage: 75,
+      createdBy: 'Admin',
+      tasks: [],
+      manpower: [],
+      notes: [],
+      issues: [],
+      materials: [],
+      remarks: [],
+      actions: [],
+      actionsNeeded: [],
+      photos: [],
+      forms: [],
+      expenses: [],
+      invoices: []
+    },
+    {
+      id: 'wo5',
+      orderNumber: 'WO-2024-005',
+      title: 'Landscaping Project',
+      description: 'Redesign and installation of garden area at main entrance',
+      status: 'pending' as WorkOrderStatus,
+      priority: 'low' as WorkOrderPriority,
+      createdDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      dueDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+      startDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+      targetEndDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+      assignedTo: ['user7', 'user8'],
+      location: {
+        address: '222 Corporate Drive, Headquarters'
+      },
+      category: 'Landscaping',
+      department: 'Facilities',
+      client: {
+        name: 'Corporate Holdings Ltd',
+        contactPerson: 'Emily Chen',
+        contactEmail: 'e.chen@corp.com',
+        contactPhone: '+1-555-5555'
+      },
+      engineerInCharge: {
+        id: 'eng5',
+        name: 'James Wilson'
+      },
+      estimatedCost: 30000,
       completionPercentage: 0,
-      estimatedCost: 45000,
-      createdBy: this.mockUsers[0],
-      createdDate: new Date('2023-09-20')
+      createdBy: 'Admin',
+      tasks: [],
+      manpower: [],
+      notes: [],
+      issues: [],
+      materials: [],
+      remarks: [],
+      actions: [],
+      actionsNeeded: [],
+      photos: [],
+      forms: [],
+      expenses: [],
+      invoices: []
     }
   ];
 
   private workOrdersSubject = new BehaviorSubject<WorkOrder[]>(this.mockWorkOrders);
+  workOrders$ = this.workOrdersSubject.asObservable();
   
-  constructor() { }
+  // Simulation settings
+  private networkDelay = 0; // Set to 0 to remove artificial delay
+  private shouldSimulateError = false; // Set to true to simulate errors
+  private errorRate = 0.1; // 10% chance of error
+  
+  constructor(private activityLogService: ActivityLogService) {
+    console.log('WorkOrderService initialized with mock data:', this.mockWorkOrders);
+  }
+
+  // Utility function to simulate network delay and possible errors
+  private simulateNetwork<T>(data: T): Observable<T> {
+    // Simulate random network errors
+    if (this.shouldSimulateError && Math.random() < this.errorRate) {
+      return timer(this.networkDelay).pipe(
+        mergeMap(() => throwError(() => new Error('Network error - simulated failure')))
+      );
+    }
+    
+    // If network delay is 0, don't use delay operator
+    if (this.networkDelay === 0) {
+      return of(data);
+    }
+    
+    // Simulate network delay
+    return of(data).pipe(delay(this.networkDelay));
+  }
 
   // Get all work orders
   getWorkOrders(): Observable<WorkOrder[]> {
-    return this.workOrdersSubject.asObservable().pipe(
-      delay(500) // Simulate network delay
+    console.log('Fetching all work orders');
+    return this.simulateNetwork(this.workOrdersSubject.value).pipe(
+      catchError(error => {
+        console.error('Error fetching work orders:', error);
+        return throwError(() => new Error('Failed to fetch work orders'));
+      })
     );
   }
 
   // Get work orders by status
-  getWorkOrdersByStatus(status: string): Observable<WorkOrder[]> {
-    return this.workOrdersSubject.asObservable().pipe(
-      map(workOrders => workOrders.filter(wo => wo.status === status)),
-      delay(500)
+  getWorkOrdersByStatus(status: WorkOrderStatus): Observable<WorkOrder[]> {
+    console.log(`Fetching work orders with status: ${status}`);
+    const filteredOrders = this.mockWorkOrders.filter(wo => wo.status === status);
+    return this.simulateNetwork(filteredOrders).pipe(
+      catchError(error => {
+        console.error(`Error fetching work orders with status ${status}:`, error);
+        return throwError(() => new Error(`Failed to fetch work orders with status ${status}`));
+      })
     );
   }
 
-  // Get a specific work order by ID
-  getWorkOrderById(id: string): Observable<WorkOrder | undefined> {
-    return this.workOrdersSubject.asObservable().pipe(
-      map(workOrders => workOrders.find(wo => wo.id === id)),
-      delay(500)
+  // Get work order details by ID
+  getWorkOrderById(id: string): Observable<WorkOrder> {
+    console.log(`Fetching work order with ID: ${id}`);
+    const workOrder = this.mockWorkOrders.find(wo => wo.id === id);
+    
+    if (!workOrder) {
+      console.warn(`Work order with ID ${id} not found`);
+      return throwError(() => new Error(`Work order with ID ${id} not found`));
+    }
+    
+    return this.simulateNetwork(workOrder).pipe(
+      catchError(error => {
+        console.error(`Error fetching work order with ID ${id}:`, error);
+        return throwError(() => new Error(`Failed to fetch work order with ID ${id}`));
+      })
+    );
+  }
+  
+  // Helper method to validate if a string is a valid work order ID
+  isValidWorkOrderId(id: string): boolean {
+    return this.mockWorkOrders.some(wo => wo.id === id);
+  }
+
+  updateWorkOrderStatus(id: string, status: WorkOrderStatus): Observable<WorkOrder> {
+    console.log(`Updating work order ${id} status to: ${status}`);
+    const workOrders = this.workOrdersSubject.value;
+    const workOrderIndex = workOrders.findIndex(wo => wo.id === id);
+    
+    if (workOrderIndex === -1) {
+      return timer(this.networkDelay).pipe(
+        mergeMap(() => throwError(() => new Error(`Work order with ID ${id} not found`)))
+      );
+    }
+
+    const updatedWorkOrder = {
+      ...workOrders[workOrderIndex],
+      status
+    };
+
+    workOrders[workOrderIndex] = updatedWorkOrder;
+    this.workOrdersSubject.next(workOrders);
+
+    return this.simulateNetwork(updatedWorkOrder).pipe(
+      catchError(error => {
+        console.error(`Error updating work order status for ID ${id}:`, error);
+        return throwError(() => new Error(`Failed to update work order status for ID ${id}`));
+      })
     );
   }
 
   // Add a new work order
   addWorkOrder(workOrder: WorkOrder): Observable<WorkOrder> {
-    const updatedWorkOrders = [...this.workOrdersSubject.value, workOrder];
-    this.workOrdersSubject.next(updatedWorkOrders);
-    return of(workOrder).pipe(delay(500));
+    console.log('Adding new work order:', workOrder);
+    if (!workOrder.id) {
+      return timer(this.networkDelay).pipe(
+        mergeMap(() => throwError(() => new Error('Work order ID is required')))
+      );
+    }
+
+    const existingWorkOrder = this.workOrdersSubject.value.find(wo => wo.id === workOrder.id);
+    if (existingWorkOrder) {
+      return timer(this.networkDelay).pipe(
+        mergeMap(() => throwError(() => new Error(`Work order with ID ${workOrder.id} already exists`)))
+      );
+    }
+
+    try {
+      const updatedWorkOrders = [...this.workOrdersSubject.value, workOrder];
+      this.workOrdersSubject.next(updatedWorkOrders);
+      return this.simulateNetwork(workOrder);
+    } catch (error) {
+      console.error('Error adding work order:', error);
+      return throwError(() => new Error('Failed to add work order'));
+    }
   }
 
   // Create a new work order
-  createWorkOrder(workOrderData: any): Observable<WorkOrder> {
-    // Generate a new ID and order number
-    const newId = `wo${this.workOrdersSubject.value.length + 1}`;
-    const orderNumber = `WO-${new Date().getFullYear()}-${(this.workOrdersSubject.value.length + 1).toString().padStart(3, '0')}`;
-    
-    // Create a new work order with default values
-    const newWorkOrder: WorkOrder = {
-      id: newId,
-      orderNumber: workOrderData.orderNumber || orderNumber,
-      title: workOrderData.title,
-      description: workOrderData.description,
-      client: workOrderData.client,
-      location: {
-        id: `loc${this.workOrdersSubject.value.length + 1}`,
-        name: workOrderData.siteLocation,
-        address: workOrderData.siteLocation
-      },
-      status: workOrderData.status || 'draft',
-      priority: workOrderData.priority || 'medium',
-      requestDate: new Date(),
-      startDate: workOrderData.startDate || new Date(),
-      targetEndDate: workOrderData.dueDate || new Date(new Date().setMonth(new Date().getMonth() + 1)),
-      tasks: workOrderData.tasks || [],
-      logs: [],
-      permits: [],
-      manpower: workOrderData.team || [],
-      equipment: [],
-      materials: workOrderData.materials || [],
-      issues: [],
-      notes: workOrderData.notes || [],
-      completionPercentage: workOrderData.completionPercentage || 0,
-      estimatedCost: workOrderData.estimatedCost,
-      createdBy: this.mockUsers[0],
-      createdDate: new Date()
-    };
-    
-    return this.addWorkOrder(newWorkOrder);
+  createWorkOrder(workOrderData: Partial<WorkOrder>): Observable<WorkOrder> {
+    console.log('Creating new work order with data:', workOrderData);
+    try {
+      const newWorkOrder: WorkOrder = {
+        id: `wo${this.workOrdersSubject.value.length + 1}`,
+        orderNumber: `WO-${new Date().getFullYear()}-${String(this.workOrdersSubject.value.length + 1).padStart(3, '0')}`,
+        title: workOrderData.title || '',
+        description: workOrderData.description || '',
+        status: workOrderData.status || 'pending',
+        priority: workOrderData.priority || 'medium',
+        createdDate: new Date().toISOString(),
+        dueDate: workOrderData.dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        startDate: workOrderData.startDate || new Date().toISOString(),
+        targetEndDate: workOrderData.targetEndDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        assignedTo: workOrderData.assignedTo || [],
+        location: workOrderData.location || { address: '' },
+        category: workOrderData.category || '',
+        department: workOrderData.department || '',
+        client: workOrderData.client || {
+          name: '',
+          contactPerson: '',
+          contactEmail: '',
+          contactPhone: ''
+        },
+        engineerInCharge: workOrderData.engineerInCharge ? { 
+          id: workOrderData.engineerInCharge.id || 'eng-default', 
+          name: workOrderData.engineerInCharge.name || 'Unassigned' 
+        } : { 
+          id: 'eng-default', 
+          name: 'Unassigned' 
+        },
+        estimatedCost: workOrderData.estimatedCost || 0,
+        completionPercentage: workOrderData.completionPercentage || 0,
+        createdBy: workOrderData.createdBy || 'System',
+        tasks: workOrderData.tasks || [],
+        manpower: workOrderData.manpower || [],
+        notes: workOrderData.notes || [],
+        issues: workOrderData.issues || [],
+        materials: workOrderData.materials || [],
+        remarks: workOrderData.remarks || [],
+        actions: workOrderData.actions || [],
+        actionsNeeded: workOrderData.actionsNeeded || [],
+        photos: workOrderData.photos || [],
+        forms: workOrderData.forms || [],
+        expenses: workOrderData.expenses || [],
+        invoices: workOrderData.invoices || []
+      };
+
+      const workOrders = [...this.workOrdersSubject.value, newWorkOrder];
+      this.workOrdersSubject.next(workOrders);
+
+      return this.simulateNetwork(newWorkOrder);
+    } catch (error) {
+      console.error('Error creating work order:', error);
+      return throwError(() => new Error('Failed to create work order'));
+    }
   }
 
   // Update an existing work order
-  updateWorkOrder(id: string, workOrderData: any): Observable<WorkOrder> {
-    const workOrder = this.workOrdersSubject.value.find(wo => wo.id === id);
-    if (!workOrder) {
-      return throwError(() => new Error('Work order not found'));
+  updateWorkOrder(id: string, workOrderData: Partial<WorkOrder>): Observable<WorkOrder> {
+    console.log(`Updating work order ${id} with data:`, workOrderData);
+    const workOrders = this.workOrdersSubject.value;
+    const workOrderIndex = workOrders.findIndex(wo => wo.id === id);
+    
+    if (workOrderIndex === -1) {
+      return timer(this.networkDelay).pipe(
+        mergeMap(() => throwError(() => new Error(`Work order with ID ${id} not found`)))
+      );
     }
 
-    const updatedWorkOrder: WorkOrder = {
-      ...workOrder,
-      title: workOrderData.title || workOrder.title,
-      description: workOrderData.description || workOrder.description,
-      client: workOrderData.client || workOrder.client,
-      status: workOrderData.status || workOrder.status,
-      priority: workOrderData.priority || workOrder.priority,
-      completionPercentage: workOrderData.completionPercentage || workOrder.completionPercentage,
-      estimatedCost: workOrderData.estimatedCost || workOrder.estimatedCost,
-      startDate: workOrderData.startDate || workOrder.startDate,
-      targetEndDate: workOrderData.dueDate || workOrder.targetEndDate,
-      lastUpdatedBy: this.mockUsers[0],
-      lastUpdatedDate: new Date()
-    };
-
-    // Update location if siteLocation provided
-    if (workOrderData.siteLocation) {
-      updatedWorkOrder.location = {
-        ...workOrder.location,
-        name: workOrderData.siteLocation,
-        address: workOrderData.siteLocation
+    try {
+      const updatedWorkOrder = {
+        ...workOrders[workOrderIndex],
+        ...workOrderData
       };
-    }
 
-    // Update tasks, materials, team if provided
-    if (workOrderData.tasks) {
-      updatedWorkOrder.tasks = workOrderData.tasks;
-    }
-    
-    if (workOrderData.materials) {
-      updatedWorkOrder.materials = workOrderData.materials;
-    }
-    
-    if (workOrderData.team) {
-      updatedWorkOrder.manpower = workOrderData.team;
-    }
-    
-    if (workOrderData.notes) {
-      updatedWorkOrder.notes = workOrderData.notes;
-    }
+      workOrders[workOrderIndex] = updatedWorkOrder;
+      this.workOrdersSubject.next(workOrders);
 
-    const updatedWorkOrders = this.workOrdersSubject.value.map(wo => 
-      wo.id === id ? updatedWorkOrder : wo
-    );
-    
-    this.workOrdersSubject.next(updatedWorkOrders);
-    return of(updatedWorkOrder).pipe(delay(500));
+      return this.simulateNetwork(updatedWorkOrder);
+    } catch (error) {
+      console.error(`Error updating work order with ID ${id}:`, error);
+      return throwError(() => new Error(`Failed to update work order with ID ${id}`));
+    }
   }
 
   // Delete a work order
   deleteWorkOrder(id: string): Observable<boolean> {
-    const updatedWorkOrders = this.workOrdersSubject.value.filter(wo => wo.id !== id);
-    this.workOrdersSubject.next(updatedWorkOrders);
-    return of(true).pipe(delay(500));
+    console.log(`Deleting work order with ID: ${id}`);
+    const workOrders = this.workOrdersSubject.value;
+    const workOrderIndex = workOrders.findIndex(wo => wo.id === id);
+    
+    if (workOrderIndex === -1) {
+      return timer(this.networkDelay).pipe(
+        mergeMap(() => throwError(() => new Error(`Work order with ID ${id} not found`)))
+      );
+    }
+
+    try {
+      workOrders.splice(workOrderIndex, 1);
+      this.workOrdersSubject.next(workOrders);
+      return this.simulateNetwork(true);
+    } catch (error) {
+      console.error(`Error deleting work order with ID ${id}:`, error);
+      return throwError(() => new Error(`Failed to delete work order with ID ${id}`));
+    }
+  }
+
+  // --- Remark Methods ---
+  
+  // Add a remark to a work order
+  addRemarkToWorkOrder(workOrderId: string, remarkData: any): Observable<WorkOrder> {
+    console.log(`Adding remark to work order ${workOrderId}:`, remarkData);
+    
+    // Find the work order
+    const workOrderIndex = this.mockWorkOrders.findIndex(wo => wo.id === workOrderId);
+    if (workOrderIndex === -1) {
+      return throwError(() => new Error(`Work order with ID ${workOrderId} not found`));
+    }
+    
+    // Create a new remark with generated ID
+    const remarkId = `remark-${Date.now()}`; // Generate a unique ID
+    const newRemark = {
+      id: remarkId,
+      workOrderId: workOrderId,
+      content: remarkData.content,
+      type: remarkData.type,
+      createdDate: new Date().toISOString(),
+      createdBy: remarkData.createdBy || 'System User',
+      peopleInvolved: remarkData.peopleInvolved || []
+    };
+    
+    // Clone the work order and add the new remark
+    const updatedWorkOrder = { ...this.mockWorkOrders[workOrderIndex] };
+    
+    // Initialize remarks array if it doesn't exist
+    if (!updatedWorkOrder.remarks) {
+      updatedWorkOrder.remarks = [];
+    }
+    
+    updatedWorkOrder.remarks = [...updatedWorkOrder.remarks, newRemark];
+    
+    // Update the mock data
+    this.mockWorkOrders[workOrderIndex] = updatedWorkOrder;
+    this.workOrdersSubject.next([...this.mockWorkOrders]);
+    
+    // Log the activity
+    return this.activityLogService.logRemarkCreation(
+      remarkId,
+      workOrderId,
+      newRemark.type,
+      remarkData.userId || 'system',
+      remarkData.createdBy || 'System User'
+    ).pipe(
+      switchMap(() => this.simulateNetwork(updatedWorkOrder)),
+      catchError(error => {
+        console.error('Error adding remark:', error);
+        return throwError(() => new Error('Failed to add remark'));
+      })
+    );
+  }
+  
+  // Update an existing remark
+  updateRemark(workOrderId: string, remarkId: string, remarkData: any): Observable<WorkOrder> {
+    console.log(`Updating remark ${remarkId} for work order ${workOrderId}:`, remarkData);
+    
+    // Find the work order
+    const workOrderIndex = this.mockWorkOrders.findIndex(wo => wo.id === workOrderId);
+    if (workOrderIndex === -1) {
+      return throwError(() => new Error(`Work order with ID ${workOrderId} not found`));
+    }
+    
+    // Clone the work order
+    const updatedWorkOrder = { ...this.mockWorkOrders[workOrderIndex] };
+    
+    // Find the remark index
+    if (!updatedWorkOrder.remarks) {
+      return throwError(() => new Error(`No remarks found for work order ${workOrderId}`));
+    }
+    
+    const remarkIndex = updatedWorkOrder.remarks.findIndex(r => r.id === remarkId);
+    if (remarkIndex === -1) {
+      return throwError(() => new Error(`Remark with ID ${remarkId} not found`));
+    }
+    
+    // Get the remark type for activity logging
+    const remarkType = remarkData.type || updatedWorkOrder.remarks[remarkIndex].type;
+    
+    // Update the remark
+    updatedWorkOrder.remarks[remarkIndex] = {
+      ...updatedWorkOrder.remarks[remarkIndex],
+      content: remarkData.content,
+      type: remarkType,
+      peopleInvolved: remarkData.peopleInvolved || []
+    };
+    
+    // Update the mock data
+    this.mockWorkOrders[workOrderIndex] = updatedWorkOrder;
+    this.workOrdersSubject.next([...this.mockWorkOrders]);
+    
+    // Log the activity
+    return this.activityLogService.logRemarkUpdate(
+      remarkId,
+      workOrderId,
+      remarkType,
+      remarkData.userId || 'system',
+      remarkData.updatedBy || 'System User'
+    ).pipe(
+      switchMap(() => this.simulateNetwork(updatedWorkOrder)),
+      catchError(error => {
+        console.error('Error updating remark:', error);
+        return throwError(() => new Error('Failed to update remark'));
+      })
+    );
+  }
+  
+  // Delete a remark
+  deleteRemark(workOrderId: string, remarkId: string): Observable<WorkOrder> {
+    console.log(`Deleting remark ${remarkId} from work order ${workOrderId}`);
+    
+    // First check if the work order exists
+    const workOrderIndex = this.mockWorkOrders.findIndex(wo => wo.id === workOrderId);
+    if (workOrderIndex === -1) {
+      return throwError(() => new Error(`Work order with ID ${workOrderId} not found`));
+    }
+    
+    // Clone the work order
+    const updatedWorkOrder = { ...this.mockWorkOrders[workOrderIndex] };
+    
+    // Check if remarks array exists
+    if (!updatedWorkOrder.remarks || !Array.isArray(updatedWorkOrder.remarks)) {
+      return throwError(() => new Error(`No remarks found for work order ${workOrderId}`));
+    }
+    
+    // Find the remark to get its type for activity logging
+    const remarkToDelete = updatedWorkOrder.remarks.find(r => r.id === remarkId);
+    if (!remarkToDelete) {
+      return throwError(() => new Error(`Remark with ID ${remarkId} not found in work order ${workOrderId}`));
+    }
+    
+    // Store original remarks for potential rollback
+    const originalRemarks = [...updatedWorkOrder.remarks];
+    
+    // Filter out the remark to delete
+    updatedWorkOrder.remarks = updatedWorkOrder.remarks.filter(r => r.id !== remarkId);
+    
+    // Update the mock data
+    this.mockWorkOrders[workOrderIndex] = updatedWorkOrder;
+    this.workOrdersSubject.next([...this.mockWorkOrders]);
+    
+    // Log the activity
+    return this.activityLogService.logRemarkDeletion(
+      remarkId,
+      workOrderId,
+      remarkToDelete.type,
+      'system', // In a real app, pass the current user ID
+      'System User' // In a real app, pass the current user name
+    ).pipe(
+      switchMap(() => this.simulateNetwork(updatedWorkOrder)),
+      catchError(error => {
+        console.error('Error deleting remark:', error);
+        
+        // Rollback changes in case of error
+        updatedWorkOrder.remarks = originalRemarks;
+        this.mockWorkOrders[workOrderIndex] = updatedWorkOrder;
+        this.workOrdersSubject.next([...this.mockWorkOrders]);
+        
+        return throwError(() => new Error(`Failed to delete remark: ${error.message || 'Unknown error'}`));
+      })
+    );
+  }
+  
+  // Get all remarks for a work order
+  getRemarksForWorkOrder(workOrderId: string): Observable<any[]> {
+    console.log(`Fetching remarks for work order ${workOrderId}`);
+    
+    // Find the work order
+    const workOrder = this.mockWorkOrders.find(wo => wo.id === workOrderId);
+    if (!workOrder) {
+      return throwError(() => new Error(`Work order with ID ${workOrderId} not found`));
+    }
+    
+    // Return the remarks or an empty array if none exist
+    const remarks = workOrder.remarks || [];
+    
+    return this.simulateNetwork(remarks).pipe(
+      catchError(error => {
+        console.error('Error fetching remarks:', error);
+        return throwError(() => new Error('Failed to fetch remarks'));
+      })
+    );
+  }
+
+  // --- Task Methods ---
+
+  // Update a task in a work order
+  updateWorkOrderTask(workOrderId: string, taskIndex: number, updatedTask: Task): Observable<WorkOrder> {
+    console.log(`Updating task at index ${taskIndex} in work order ${workOrderId}:`, updatedTask);
+    
+    const workOrders = this.workOrdersSubject.value;
+    const workOrderIndex = workOrders.findIndex(wo => wo.id === workOrderId);
+    
+    if (workOrderIndex === -1) {
+      return timer(this.networkDelay).pipe(
+        mergeMap(() => throwError(() => new Error(`Work order with ID ${workOrderId} not found`)))
+      );
+    }
+    
+    try {
+      const workOrder = { ...workOrders[workOrderIndex] };
+      
+      if (!workOrder.tasks || !Array.isArray(workOrder.tasks)) {
+        return timer(this.networkDelay).pipe(
+          mergeMap(() => throwError(() => new Error(`Tasks array not found in work order ${workOrderId}`)))
+        );
+      }
+      
+      if (taskIndex < 0 || taskIndex >= workOrder.tasks.length) {
+        return timer(this.networkDelay).pipe(
+          mergeMap(() => throwError(() => new Error(`Task index ${taskIndex} is out of bounds`)))
+        );
+      }
+      
+      // Update the specific task
+      workOrder.tasks[taskIndex] = updatedTask;
+      
+      // Update the work order in the subject
+      workOrders[workOrderIndex] = workOrder;
+      this.workOrdersSubject.next(workOrders);
+      
+      return this.simulateNetwork(workOrder);
+    } catch (error) {
+      console.error(`Error updating task in work order ${workOrderId}:`, error);
+      return throwError(() => new Error(`Failed to update task in work order ${workOrderId}`));
+    }
   }
 
   // Add a task to a work order
-  addTask(workOrderId: string, task: Task): Observable<WorkOrder | undefined> {
-    const workOrder = this.workOrdersSubject.value.find(wo => wo.id === workOrderId);
-    if (!workOrder) {
-      return of(undefined);
+  addTaskToWorkOrder(workOrderId: string, taskData: Partial<Task>): Observable<WorkOrder> {
+    console.log(`Adding task to work order ${workOrderId}:`, taskData);
+    
+    const workOrders = this.workOrdersSubject.value;
+    const workOrderIndex = workOrders.findIndex(wo => wo.id === workOrderId);
+    
+    if (workOrderIndex === -1) {
+      return timer(this.networkDelay).pipe(
+        mergeMap(() => throwError(() => new Error(`Work order with ID ${workOrderId} not found`)))
+      );
     }
-
-    const updatedWorkOrder = {
-      ...workOrder,
-      tasks: [...workOrder.tasks, task]
-    };
-
-    return this.updateWorkOrder(workOrderId, updatedWorkOrder);
+    
+    try {
+      const workOrder = { ...workOrders[workOrderIndex] };
+      
+      // Initialize tasks array if it doesn't exist
+      if (!workOrder.tasks) {
+        workOrder.tasks = [];
+      }
+      
+      // Create a new task with generated ID
+      const newTask: Task = {
+        id: `task-${Date.now()}`,
+        title: taskData.title || 'New Task',
+        description: taskData.description || '',
+        status: taskData.status || 'pending',
+        priority: taskData.priority || 'medium',
+        startDate: taskData.startDate || new Date().toISOString(),
+        dueDate: taskData.dueDate || undefined,
+        assignedTo: taskData.assignedTo || '',
+        completed: taskData.completed || false,
+        workOrderId: Number(workOrderId)
+      };
+      
+      // Add the task to the work order
+      workOrder.tasks.push(newTask);
+      
+      // Update the work order in the subject
+      workOrders[workOrderIndex] = workOrder;
+      this.workOrdersSubject.next(workOrders);
+      
+      return this.simulateNetwork(workOrder);
+    } catch (error) {
+      console.error(`Error adding task to work order ${workOrderId}:`, error);
+      return throwError(() => new Error(`Failed to add task to work order ${workOrderId}`));
+    }
   }
 
-  // Add an issue to a work order
-  addIssue(workOrderId: string, issue: Issue): Observable<WorkOrder | undefined> {
-    const workOrder = this.workOrdersSubject.value.find(wo => wo.id === workOrderId);
-    if (!workOrder) {
-      return of(undefined);
+  // Delete a task from a work order
+  deleteTask(workOrderId: string, taskIndex: number): Observable<WorkOrder> {
+    console.log(`Deleting task at index ${taskIndex} from work order ${workOrderId}`);
+    
+    const workOrders = this.workOrdersSubject.value;
+    const workOrderIndex = workOrders.findIndex(wo => wo.id === workOrderId);
+    
+    if (workOrderIndex === -1) {
+      return timer(this.networkDelay).pipe(
+        mergeMap(() => throwError(() => new Error(`Work order with ID ${workOrderId} not found`)))
+      );
     }
-
-    const updatedWorkOrder = {
-      ...workOrder,
-      issues: [...workOrder.issues, issue]
-    };
-
-    return this.updateWorkOrder(workOrderId, updatedWorkOrder);
+    
+    try {
+      const workOrder = { ...workOrders[workOrderIndex] };
+      
+      if (!workOrder.tasks || !Array.isArray(workOrder.tasks)) {
+        return timer(this.networkDelay).pipe(
+          mergeMap(() => throwError(() => new Error(`Tasks array not found in work order ${workOrderId}`)))
+        );
+      }
+      
+      if (taskIndex < 0 || taskIndex >= workOrder.tasks.length) {
+        return timer(this.networkDelay).pipe(
+          mergeMap(() => throwError(() => new Error(`Task index ${taskIndex} is out of bounds`)))
+        );
+      }
+      
+      // Remove the task at the specified index
+      workOrder.tasks.splice(taskIndex, 1);
+      
+      // Update the work order in the subject
+      workOrders[workOrderIndex] = workOrder;
+      this.workOrdersSubject.next(workOrders);
+      
+      return this.simulateNetwork(workOrder);
+    } catch (error) {
+      console.error(`Error deleting task from work order ${workOrderId}:`, error);
+      return throwError(() => new Error(`Failed to delete task from work order ${workOrderId}`));
+    }
   }
 
-  // Add a note to a work order
-  addNote(workOrderId: string, note: Note): Observable<WorkOrder | undefined> {
-    const workOrder = this.workOrdersSubject.value.find(wo => wo.id === workOrderId);
-    if (!workOrder) {
-      return of(undefined);
-    }
-
-    const updatedWorkOrder = {
-      ...workOrder,
-      notes: [...workOrder.notes, note]
-    };
-
-    return this.updateWorkOrder(workOrderId, updatedWorkOrder);
-  }
-
-  // Add a log entry to a work order
-  addLogEntry(workOrderId: string, logEntry: LogEntry): Observable<WorkOrder | undefined> {
-    const workOrder = this.workOrdersSubject.value.find(wo => wo.id === workOrderId);
-    if (!workOrder) {
-      return of(undefined);
-    }
-
-    const updatedWorkOrder = {
-      ...workOrder,
-      logs: [...workOrder.logs, logEntry]
-    };
-
-    return this.updateWorkOrder(workOrderId, updatedWorkOrder);
-  }
-
-  // Get users (for assignments)
-  getUsers(): Observable<User[]> {
-    return of(this.mockUsers).pipe(delay(500));
+  // When creating a task, use the correct properties
+  createTask(workOrderId: string, taskData: Partial<Task>): Observable<Task> {
+    return of({
+      id: String(Math.floor(Math.random() * 10000)),
+      title: taskData.title || 'New Task',
+      description: taskData.description || '',
+      status: taskData.status || 'pending',
+      priority: taskData.priority || 'medium',
+      assignedTo: taskData.assignedTo || '',
+      startDate: taskData.startDate || new Date(),
+      dueDate: taskData.dueDate || undefined,
+      completed: taskData.completed || false,
+      workOrderId: workOrderId,
+      createdBy: 'Current User',
+      createdAt: new Date()
+    }).pipe(delay(500));
   }
 } 

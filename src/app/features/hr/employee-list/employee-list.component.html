@@ -33,7 +33,8 @@
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let employee">
               <div class="employee-photo">
-                <img [src]="employee.photo || 'assets/images/default-avatar.png'" alt="Employee photo">
+                <img *ngIf="employee.photo" [src]="employee.photo" alt="Employee photo">
+                <mat-icon *ngIf="!employee.photo" class="photo-icon">person</mat-icon>
               </div>
             </td>
           </ng-container>

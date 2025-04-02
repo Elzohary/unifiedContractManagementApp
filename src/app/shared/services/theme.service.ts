@@ -86,11 +86,15 @@ export class ThemeService {
    */
   private applyTheme(theme: ThemeMode): void {
     if (this.isBrowser) {
-      // Remove both theme classes
+      // Remove both theme classes first
       this.document.body.classList.remove('light-theme', 'dark-theme');
       
       // Add the current theme class
       this.document.body.classList.add(theme);
+      
+      // Remove any overlay elements that might have been added
+      const overlays = this.document.querySelectorAll('.theme-overlay');
+      overlays.forEach(overlay => overlay.remove());
     }
   }
 
@@ -101,49 +105,43 @@ export class ThemeService {
     if (!this.isBrowser) {
       return this.DEFAULT_THEME;
     }
-    
+
     try {
-      // Check localStorage first
+      // Check localStorage
       const savedTheme = localStorage.getItem(this.THEME_KEY) as ThemeMode;
       if (savedTheme && (savedTheme === 'light-theme' || savedTheme === 'dark-theme')) {
         return savedTheme;
       }
-    } catch (e) {
-      console.warn('Failed to access localStorage:', e);
-    }
-    
-    // Use system preference as fallback
-    return this.getSystemPreference();
-  }
 
-  /**
-   * Get system color scheme preference
-   */
-  private getSystemPreference(): ThemeMode {
-    if (this.isBrowser && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark-theme';
+      // Check system preference
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark-theme';
+      }
+    } catch (e) {
+      console.warn('Failed to read theme preference:', e);
     }
-    return 'light-theme';
+
+    return this.DEFAULT_THEME;
   }
 
   /**
    * Listen to system preference changes
    */
   private listenToSystemPreference(): void {
-    if (this.isBrowser && window.matchMedia) {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      
-      // Only update if user hasn't set a preference
-      mediaQuery.addEventListener('change', (e) => {
-        try {
-          if (!localStorage.getItem(this.THEME_KEY)) {
-            const newTheme: ThemeMode = e.matches ? 'dark-theme' : 'light-theme';
-            this.setTheme(newTheme);
-          }
-        } catch (e) {
-          console.warn('Failed to access localStorage:', e);
+    if (!this.isBrowser) return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // Add event listener
+    mediaQuery.addEventListener('change', (e) => {
+      // Only update if no theme is saved in localStorage
+      try {
+        if (!localStorage.getItem(this.THEME_KEY)) {
+          this.setTheme(e.matches ? 'dark-theme' : 'light-theme');
         }
-      });
-    }
+      } catch (e) {
+        console.warn('Failed to handle system theme change:', e);
+      }
+    });
   }
 } 

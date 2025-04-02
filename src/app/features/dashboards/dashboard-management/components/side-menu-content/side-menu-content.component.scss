@@ -1,132 +1,345 @@
 .mat-mdc-list-item-icon {
-  color: rgba(0, 0, 0, 0.54);
+  color: var(--icon-default-color);
+  margin-right: 16px;
 }
 
 .menu-header {
-padding: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+  padding: 24px 16px 8px;
+  margin: 0;
 }
 
 img {
-min-width: 3rem;
-max-width: 4rem;
+  min-width: 3rem;
+  max-width: 4rem;
 }
 
 ul, li {
-list-style-type: none;
+  list-style-type: none;
 }
 
 a {
-text-decoration: none;
-color: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
-.title{
-color: #84919A;
+.title {
+  color: var(--text-secondary);
 }
 
 .item {
-font-size: 1.03rem;
-font-weight: 500;
-padding-block: 0.52rem;
-padding-inline-start: 0.8em;
-border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  height: var(--menu-item-height);
+  padding: var(--menu-item-padding);
+  color: var(--menu-item-color);
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+  font-size: 14px;
+  border-left: 3px solid transparent;
+  
+  &:hover {
+    background-color: var(--menu-item-hover-bg);
+    color: var(--menu-item-hover-color);
+  }
+  
+  .mat-icon {
+    margin-right: 16px;
+    color: var(--icon-default-color);
+  }
 }
 
 .activeItem {
-background-color: #EEF0F2;
-font-weight: 900;
+  color: var(--menu-item-active-color);
+  background-color: var(--menu-item-active-bg);
+  border-left: 3px solid var(--menu-item-active-border);
+  
+  .mat-icon {
+    color: var(--menu-item-active-color);
+  }
 }
 
 .activeSubItem {
-background-color: #5b6066 !important;
-font-weight: 900;
+  background-color: var(--menu-item-active-bg) !important;
+  font-weight: 500;
+  color: var(--menu-item-active-color);
 }
 
 .subItem {
-font-size: 1rem;
-border-radius: 0.5rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
 }
 
 .subItem:hover {
-background-color: #EEF0F2;
-color: #252C32;
+  background-color: var(--menu-item-hover-bg);
+  color: var(--menu-item-hover-color);
 }
 
 .itemBtn {
-background-color: rgb(240, 240, 240);
-width: 100%;
-border: none;
-border-radius: 0.5rem;
+  background-color: transparent;
+  width: 100%;
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--menu-item-color);
+}
+
+/* Fix scrollbar issues */
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  flex: 1;
 }
 
 .sidenav-content {
-  padding: 12px 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--menu-item-hover-bg);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--primary-hover);
+    border-radius: 10px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
 }
 
 .nav-section {
   margin-bottom: 16px;
-  overflow: hidden;
 }
 
 .nav-section-title {
-  font-size: 13px;
-  text-transform: uppercase;
-  font-weight: 500;
-  color: #84919A;
   padding: 16px 16px 8px;
   margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
-// Active link styling
+mat-divider {
+  margin: 8px 0;
+  border-top-color: var(--border-color);
+}
+
+/* Active link styling */
 .active-link {
-  background-color: rgba(15, 53, 49, 0.08);
-  color: #0f3531;
-  font-weight: 500;
+  background-color: var(--menu-item-active-bg) !important;
+  color: var(--menu-item-active-color) !important;
   
-  .mat-icon {
-    color: #0f3531;
+  mat-icon {
+    color: var(--menu-item-active-color) !important;
   }
 }
 
-// Badge styling
-.badge {
-  background-color: #cf6329;
-  color: white;
-  font-size: 11px;
-  border-radius: 10px;
-  padding: 2px 6px;
-  font-weight: bold;
-}
-
-// Dark theme overrides
-:host-context(.dark-theme) {
-  .nav-section-title {
-    color: #a5adab;
-  }
-  
-  .active-link {
-    background-color: rgba(195, 234, 228, 0.1);
-    color: #c3eae4;
+/* Fix for Active Navigation Items in Work Orders Section */
+:host ::ng-deep {
+  .mat-mdc-list-item {
+    border-radius: 4px;
+    margin: 0 8px;
     
-    .mat-icon {
-      color: #c3eae4;
+    &.active-link,
+    &.mdc-list-item--activated {
+      background-color: var(--menu-item-active-bg) !important;
+      
+      .mdc-list-item__primary-text {
+        color: var(--menu-item-active-color) !important;
+      }
+      
+      .mat-icon {
+        color: var(--menu-item-active-color) !important;
+      }
+    }
+    
+    &:hover {
+      background-color: var(--menu-item-hover-bg);
     }
   }
   
-  .mat-mdc-list-item .mat-icon {
-    color: #a5adab;
-  }
-  
-  .mat-mdc-list-item:hover {
-    background-color: rgba(255, 255, 255, 0.08);
+  .mdc-list-item__primary-text {
+    display: flex;
+    align-items: center;
+    color: var(--menu-item-color);
   }
 }
 
-// Animation for menu items
-.mat-mdc-list-item {
-  transition: background-color 0.2s, color 0.2s;
+/* Menu styling */
+.mat-menu-content {
+  padding: 0 !important;
+  background-color: var(--card-bg) !important;
+}
+
+.submenu {
+  min-width: 200px;
+  background-color: var(--card-bg);
+  border-radius: 4px;
+  box-shadow: var(--shadow-base);
   
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+  .mat-menu-item {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 16px;
+    color: var(--menu-item-color);
+    background-color: var(--card-bg);
+    
+    &:hover {
+      background-color: var(--menu-item-hover-bg);
+      color: var(--menu-item-hover-color);
+    }
+    
+    .mat-icon {
+      margin-right: 16px;
+      color: var(--icon-default-color);
+    }
+  }
+}
+
+/* Badge styling */
+.badge {
+  margin-left: auto;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+/* Material overrides */
+:host ::ng-deep .mat-mdc-list-base {
+  --mdc-list-list-item-one-line-container-height: 48px;
+  --mdc-list-list-item-container-shape: 0;
+}
+
+@media (max-width: 600px) {
+  .nav-section-title {
+    font-size: 11px;
+    padding: 12px 12px 4px;
+  }
+  
+  :host ::ng-deep {
+    .mat-mdc-list-item {
+      margin: 0 4px;
+    }
+  }
+}
+
+/* Dark theme specific enhancements */
+:host-context(.dark-theme) {
+  // Side menu background
+  .sidenav-content {
+    background-color: var(--gray-2);
+  }
+  
+  // Menu items with better contrast
+  .item {
+    color: var(--gray-9);
+    
+    .mat-icon {
+      color: var(--gray-8);
+    }
+    
+    &:hover {
+      background-color: var(--gray-3);
+      color: var(--white);
+      
+      .mat-icon {
+        color: var(--primary-hover);
+      }
+    }
+  }
+  
+  // Active items with more distinction
+  .activeItem, .active-link {
+    background-color: rgba(24, 144, 255, 0.25) !important;
+    color: var(--primary-hover) !important;
+    border-left-color: var(--primary-hover);
+    
+    .mat-icon {
+      color: var(--primary-hover) !important;
+    }
+  }
+  
+  // Section headers more visible
+  .menu-header, .nav-section-title {
+    color: var(--gray-8);
+  }
+  
+  // List items styling
+  .mat-mdc-list-item {
+    .mdc-list-item__primary-text {
+      color: var(--gray-9) !important;
+    }
+    
+    &:hover {
+      .mdc-list-item__primary-text {
+        color: var(--white) !important;
+      }
+      
+      .mat-icon {
+        color: var(--primary-hover) !important;
+      }
+    }
+  }
+  
+  // Menu panel background
+  .mat-menu-content, .submenu {
+    background-color: var(--gray-2) !important;
+    
+    .mat-menu-item {
+      color: var(--gray-9) !important;
+      
+      &:hover {
+        background-color: var(--gray-3) !important;
+        color: var(--white) !important;
+      }
+    }
+  }
+  
+  // Badge styling
+  .badge {
+    background-color: var(--primary-hover);
+    color: var(--white);
+  }
+  
+  // Dividers more visible
+  mat-divider {
+    border-top-color: var(--gray-4);
+  }
+  
+  // Custom scrollbar in dark mode
+  .sidenav-content {
+    &::-webkit-scrollbar-track {
+      background: var(--gray-3);
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--gray-5);
+      
+      &:hover {
+        background: var(--gray-6);
+      }
+    }
+  }
+  
+  // Make title text more visible
+  .title {
+    color: var(--gray-8);
   }
 }
