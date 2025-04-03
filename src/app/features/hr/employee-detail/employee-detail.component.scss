@@ -180,11 +180,75 @@
 
 .details-card {
   border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-base);
   
-  mat-tab-group {
-    .tab-content {
-      padding: 24px 0;
+  ::ng-deep {
+    // Align with our global tab styling while retaining specific overrides
+    .mat-mdc-tab-group {
+      // Full height tabs for a more elegant look
+      height: 100%;
+      
+      .mat-mdc-tab-header {
+        padding: 0 16px;
+        border-bottom: none;
+        height: 56px;
+        
+        &:after {
+          height: 1px;
+          background-color: var(--border-color);
+        }
+      }
+      
+      .mat-mdc-tab {
+        height: 56px;
+        padding: 0 20px;
+        min-width: 140px;
+        transition: background-color 0.2s ease;
+        
+        // Add subtle label-only animation
+        .mat-mdc-tab-label-content {
+          position: relative;
+          font-size: 15px;
+          letter-spacing: 0.25px;
+          transition: all 0.3s ease;
+          
+          &:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            background-color: var(--primary);
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+            opacity: 0;
+            border-radius: 2px;
+          }
+        }
+        
+        &.mdc-tab--active .mat-mdc-tab-label-content:after {
+          width: 40%;
+          opacity: 1;
+        }
+      }
+      
+      // Add subtle fade animation for better UX
+      .mat-mdc-tab-body-content {
+        opacity: 0;
+        animation: fadeIn 0.3s ease forwards;
+        animation-delay: 0.05s;
+      }
+      
+      @keyframes fadeIn {
+        to { opacity: 1; }
+      }
     }
+  }
+  
+  .tab-content {
+    padding: 24px 16px;
   }
 }
 
@@ -351,6 +415,50 @@
     
     &:hover {
       background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  .details-card {
+    background-color: var(--gray-2);
+    border: 1px solid var(--gray-4);
+    
+    ::ng-deep {
+      .mat-mdc-tab-header {
+        background-color: var(--gray-2);
+        
+        &:after {
+          background-color: var(--gray-4);
+        }
+      }
+      
+      .mat-mdc-tab {
+        &:not(.mdc-tab--active):hover {
+          background-color: rgba(255, 255, 255, 0.05);
+        }
+      }
+      
+      .mat-mdc-tab-body-content {
+        background-color: var(--gray-2);
+      }
+    }
+  }
+  
+  .detail-section {
+    h3 {
+      border-bottom-color: var(--gray-4);
+      color: var(--gray-9);
+    }
+    
+    .detail-list {
+      .detail-item {
+        .label {
+          color: var(--gray-7);
+        }
+        
+        .value {
+          color: var(--gray-9);
+        }
+      }
     }
   }
 } 

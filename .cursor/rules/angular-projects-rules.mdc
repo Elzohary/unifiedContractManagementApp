@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 - Don't change in any styles without asking my permission!
 - Don't Change in the navigation without asking my permission.

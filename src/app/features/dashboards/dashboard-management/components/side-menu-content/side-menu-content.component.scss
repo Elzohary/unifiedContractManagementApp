@@ -1,93 +1,4 @@
-.mat-mdc-list-item-icon {
-  color: var(--icon-default-color);
-  margin-right: 16px;
-}
-
-.menu-header {
-  color: var(--text-secondary);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.08rem;
-  text-transform: uppercase;
-  padding: 24px 16px 8px;
-  margin: 0;
-}
-
-img {
-  min-width: 3rem;
-  max-width: 4rem;
-}
-
-ul, li {
-  list-style-type: none;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-.title {
-  color: var(--text-secondary);
-}
-
-.item {
-  display: flex;
-  align-items: center;
-  height: var(--menu-item-height);
-  padding: var(--menu-item-padding);
-  color: var(--menu-item-color);
-  text-decoration: none;
-  transition: background-color 0.2s, color 0.2s;
-  font-size: 14px;
-  border-left: 3px solid transparent;
-  
-  &:hover {
-    background-color: var(--menu-item-hover-bg);
-    color: var(--menu-item-hover-color);
-  }
-  
-  .mat-icon {
-    margin-right: 16px;
-    color: var(--icon-default-color);
-  }
-}
-
-.activeItem {
-  color: var(--menu-item-active-color);
-  background-color: var(--menu-item-active-bg);
-  border-left: 3px solid var(--menu-item-active-border);
-  
-  .mat-icon {
-    color: var(--menu-item-active-color);
-  }
-}
-
-.activeSubItem {
-  background-color: var(--menu-item-active-bg) !important;
-  font-weight: 500;
-  color: var(--menu-item-active-color);
-}
-
-.subItem {
-  font-size: 1rem;
-  border-radius: 0.5rem;
-}
-
-.subItem:hover {
-  background-color: var(--menu-item-hover-bg);
-  color: var(--menu-item-hover-color);
-}
-
-.itemBtn {
-  background-color: transparent;
-  width: 100%;
-  border: none;
-  border-radius: 0.5rem;
-  color: var(--menu-item-color);
-}
-
-/* Fix scrollbar issues */
+/* Modern Side Menu Styling */
 :host {
   display: block;
   height: 100%;
@@ -100,67 +11,179 @@ a {
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
+  background-color: var(--sidebar-background);
   
-  // Custom scrollbar
+  /* Custom scrollbar styling */
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
   
   &::-webkit-scrollbar-track {
-    background: var(--menu-item-hover-bg);
+    background: transparent;
   }
   
   &::-webkit-scrollbar-thumb {
-    background: var(--primary-hover);
-    border-radius: 10px;
+    background: var(--scrollbar-thumb);
+    border-radius: 6px;
   }
   
   &::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
+    background: var(--scrollbar-thumb-hover);
   }
 }
 
+/* Navigation section styling */
 .nav-section {
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
+  
+  .nav-section-title {
+    padding: var(--spacing-md) var(--spacing-lg);
+    margin: 0;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
 }
 
-.nav-section-title {
-  padding: 16px 16px 8px;
-  margin: 0;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+/* Menu item styling */
+.item {
+  display: flex;
+  align-items: center;
+  height: var(--menu-item-height);
+  padding: var(--menu-item-padding);
+  color: var(--menu-item-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: var(--font-size-sm);
+  margin: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.15px;
+  
+  &:hover {
+    background-color: var(--menu-item-hover-bg);
+    color: var(--menu-item-hover-color);
+    transform: translateX(4px);
+  }
+  
+  .mat-icon {
+    margin-right: var(--spacing-md);
+    color: var(--icon-default-color);
+    transition: all 0.2s ease;
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+}
+
+/* Active menu item */
+.activeItem {
+  color: var(--menu-item-active-color);
+  background-color: var(--menu-item-active-bg);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
+  .mat-icon {
+    color: var(--menu-item-active-color);
+  }
+}
+
+/* Submenu items */
+.subItem {
+  font-size: var(--font-size-sm);
+  margin: var(--spacing-xs) var(--spacing-lg);
+  padding: 0 var(--spacing-md);
+  height: 36px;
+  border-radius: var(--border-radius-sm);
+  
+  &:hover {
+    background-color: var(--menu-item-hover-bg);
+    color: var(--menu-item-hover-color);
+  }
+}
+
+.activeSubItem {
+  background-color: var(--menu-item-active-bg) !important;
+  font-weight: var(--font-weight-semibold);
+  color: var(--menu-item-active-color);
+}
+
+.menu-header {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-sm);
+  margin: 0;
 }
 
+.title {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.itemBtn {
+  background-color: transparent;
+  width: 100%;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--menu-item-color);
+  cursor: pointer;
+}
+
+/* Standard elements */
+img {
+  min-width: 3rem;
+  max-width: 4rem;
+}
+
+ul, li {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Dividers with improved visibility */
 mat-divider {
-  margin: 8px 0;
+  margin: var(--spacing-sm) 0;
   border-top-color: var(--border-color);
+  opacity: 0.8;
 }
 
 /* Active link styling */
 .active-link {
   background-color: var(--menu-item-active-bg) !important;
   color: var(--menu-item-active-color) !important;
+  font-weight: var(--font-weight-semibold);
   
   mat-icon {
     color: var(--menu-item-active-color) !important;
   }
 }
 
-/* Fix for Active Navigation Items in Work Orders Section */
+/* Material Design improvements for Angular Material components */
 :host ::ng-deep {
   .mat-mdc-list-item {
-    border-radius: 4px;
-    margin: 0 8px;
+    border-radius: var(--border-radius-sm);
+    margin: var(--spacing-xs) var(--spacing-md);
+    min-height: var(--menu-item-height);
     
     &.active-link,
     &.mdc-list-item--activated {
       background-color: var(--menu-item-active-bg) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       
       .mdc-list-item__primary-text {
         color: var(--menu-item-active-color) !important;
+        font-weight: var(--font-weight-semibold);
       }
       
       .mat-icon {
@@ -170,6 +193,8 @@ mat-divider {
     
     &:hover {
       background-color: var(--menu-item-hover-bg);
+      transform: translateX(4px);
+      transition: transform 0.2s ease;
     }
   }
   
@@ -177,10 +202,11 @@ mat-divider {
     display: flex;
     align-items: center;
     color: var(--menu-item-color);
+    font-weight: var(--font-weight-medium);
   }
 }
 
-/* Menu styling */
+/* Menu panel styling */
 .mat-menu-content {
   padding: 0 !important;
   background-color: var(--card-bg) !important;
@@ -189,15 +215,17 @@ mat-divider {
 .submenu {
   min-width: 200px;
   background-color: var(--card-bg);
-  border-radius: 4px;
-  box-shadow: var(--shadow-base);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
   
   .mat-menu-item {
     height: 40px;
     line-height: 40px;
-    padding: 0 16px;
+    padding: 0 var(--spacing-lg);
     color: var(--menu-item-color);
     background-color: var(--card-bg);
+    font-weight: var(--font-weight-medium);
     
     &:hover {
       background-color: var(--menu-item-hover-bg);
@@ -205,7 +233,7 @@ mat-divider {
     }
     
     .mat-icon {
-      margin-right: 16px;
+      margin-right: var(--spacing-md);
       color: var(--icon-default-color);
     }
   }
@@ -216,26 +244,30 @@ mat-divider {
   margin-left: auto;
   background-color: var(--primary);
   color: white;
-  border-radius: 10px;
-  padding: 2px 8px;
-  font-size: 12px;
+  border-radius: 16px;
+  padding: 2px 12px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  min-width: 20px;
+  text-align: center;
 }
 
-/* Material overrides */
+/* Material Design list styling */
 :host ::ng-deep .mat-mdc-list-base {
-  --mdc-list-list-item-one-line-container-height: 48px;
+  --mdc-list-list-item-one-line-container-height: var(--menu-item-height);
   --mdc-list-list-item-container-shape: 0;
 }
 
+/* Media queries */
 @media (max-width: 600px) {
   .nav-section-title {
-    font-size: 11px;
-    padding: 12px 12px 4px;
+    font-size: calc(var(--font-size-xs) - 1px);
+    padding: var(--spacing-sm) var(--spacing-md);
   }
   
   :host ::ng-deep {
     .mat-mdc-list-item {
-      margin: 0 4px;
+      margin: var(--spacing-xs) var(--spacing-sm);
     }
   }
 }
@@ -244,19 +276,20 @@ mat-divider {
 :host-context(.dark-theme) {
   // Side menu background
   .sidenav-content {
-    background-color: var(--gray-2);
+    background-color: var(--gray-900);
+    border-right: 1px solid var(--gray-800);
   }
   
   // Menu items with better contrast
   .item {
-    color: var(--gray-9);
+    color: var(--gray-300);
     
     .mat-icon {
-      color: var(--gray-8);
+      color: var(--gray-300);
     }
     
     &:hover {
-      background-color: var(--gray-3);
+      background-color: rgba(255, 255, 255, 0.08);
       color: var(--white);
       
       .mat-icon {
@@ -267,7 +300,7 @@ mat-divider {
   
   // Active items with more distinction
   .activeItem, .active-link {
-    background-color: rgba(24, 144, 255, 0.25) !important;
+    background-color: var(--primary-light) !important;
     color: var(--primary-hover) !important;
     border-left-color: var(--primary-hover);
     
@@ -278,13 +311,17 @@ mat-divider {
   
   // Section headers more visible
   .menu-header, .nav-section-title {
-    color: var(--gray-8);
+    color: var(--gray-400);
   }
   
   // List items styling
   .mat-mdc-list-item {
+    .mat-icon {
+      color: var(--gray-300) !important;
+    }
+    
     .mdc-list-item__primary-text {
-      color: var(--gray-9) !important;
+      color: var(--gray-300) !important;
     }
     
     &:hover {
@@ -300,14 +337,18 @@ mat-divider {
   
   // Menu panel background
   .mat-menu-content, .submenu {
-    background-color: var(--gray-2) !important;
+    background-color: var(--gray-800) !important;
     
     .mat-menu-item {
-      color: var(--gray-9) !important;
+      color: var(--gray-300) !important;
       
       &:hover {
-        background-color: var(--gray-3) !important;
+        background-color: rgba(255, 255, 255, 0.08) !important;
         color: var(--white) !important;
+      }
+      
+      .mat-icon {
+        color: var(--gray-300) !important;
       }
     }
   }
@@ -320,26 +361,31 @@ mat-divider {
   
   // Dividers more visible
   mat-divider {
-    border-top-color: var(--gray-4);
+    border-top-color: var(--gray-700);
   }
   
   // Custom scrollbar in dark mode
   .sidenav-content {
     &::-webkit-scrollbar-track {
-      background: var(--gray-3);
+      background: transparent;
     }
     
     &::-webkit-scrollbar-thumb {
-      background: var(--gray-5);
+      background: var(--gray-600);
       
       &:hover {
-        background: var(--gray-6);
+        background: var(--gray-500);
       }
     }
   }
   
   // Make title text more visible
   .title {
-    color: var(--gray-8);
+    color: var(--gray-300);
+  }
+  
+  // Icon color fix for all contexts
+  .mat-mdc-list-item-icon {
+    color: var(--gray-300) !important;
   }
 }

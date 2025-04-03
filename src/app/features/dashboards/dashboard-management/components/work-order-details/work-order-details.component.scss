@@ -340,8 +340,8 @@
     }
     
     .mat-mdc-tab-body-content {
-      padding: 24px;
-      color: var(--text-primary); /* Ensure text has good contrast */
+      padding: 32px 24px;
+      color: var(--text-primary);
     }
     
     .mat-mdc-tab-header {
@@ -366,6 +366,21 @@
         vertical-align: middle;
       }
     }
+
+    /* Add subtle animations */
+    .mat-mdc-tab-body.mat-mdc-tab-body-active {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0.7; }
+      to { opacity: 1; }
+    }
+
+    /* Content container fix */
+    .mat-mdc-tab-body-wrapper {
+      border-top: none;
+    }
   }
   
   .tab-icon {
@@ -379,6 +394,21 @@
       font-size: 18px;
       font-weight: 500;
       color: var(--text-primary);
+      letter-spacing: 0.15px;
+      position: relative;
+      padding-bottom: 12px;
+      
+      /* Add subtle underline */
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background-color: var(--primary);
+        border-radius: 2px;
+      }
     }
   }
 }
@@ -386,14 +416,15 @@
 /* Info-tabs spacing fix */
 .info-tabs {
   ::ng-deep {
-    .mat-mdc-tab-label-content {
-      .tab-icon {
-        margin-right: 12px !important;
-      }
-      
-      span {
-        margin-left: 4px;
-      }
+    /* Make tab container more elegant */
+    .mat-mdc-tab-header {
+      padding: 0 8px;
+      background-color: transparent;
+    }
+    
+    /* Subtle animation for tab changes */
+    .mat-mdc-tab-body-content {
+      transition: transform 0.3s ease-out;
     }
   }
 }
@@ -2538,4 +2569,36 @@ mat-card-title {
     height: 18px !important;
     width: 18px !important;
   }
+}
+
+/* Dark theme adjustments */
+:host-context(.dark-theme) {
+  /* ... existing code ... */
+  
+  /* Tab styling for dark theme */
+  .tabs-card, .info-tabs {
+    ::ng-deep {
+      .mat-mdc-tab-header {
+        background-color: transparent;
+        
+        &:after {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      }
+      
+      .mat-mdc-tab-body-content {
+        background-color: transparent;
+      }
+    }
+    
+    .tab-content h3 {
+      color: var(--gray-9);
+      
+      &:after {
+        background-color: var(--primary-hover);
+      }
+    }
+  }
+  
+  /* ... existing code ... */
 } 

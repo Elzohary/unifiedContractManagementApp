@@ -317,16 +317,40 @@ a {
 }
 
 .status-tabs {
-  ::ng-deep .mat-mdc-tab-header {
-    border-bottom: none;
-  }
+  margin-bottom: 0;
+  box-shadow: none;
   
-  ::ng-deep .mat-mdc-tab {
-    min-width: 100px;
-  }
-  
-  ::ng-deep .mat-mdc-tab-label-content {
-    color: var(--text-primary);
+  ::ng-deep {
+    .mat-mdc-tab-header {
+      padding: 0 16px;
+      border-radius: var(--card-border-radius) var(--card-border-radius) 0 0;
+    }
+    
+    .mat-mdc-tab-header:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: -1;
+      border-radius: var(--card-border-radius) var(--card-border-radius) 0 0;
+      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.03);
+    }
+    
+    .mat-mdc-tab {
+      min-width: 110px;
+      padding: 0 16px;
+      height: 48px;
+      
+      &:not(.mdc-tab--active):hover {
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.03));
+      }
+    }
+    
+    .mdc-tab-indicator__content--underline {
+      border-top-width: 3px !important;
+    }
   }
 }
 
@@ -888,6 +912,19 @@ a {
     
     .mat-paginator-range-label {
       color: var(--gray-7) !important;
+    }
+  }
+  
+  // Tab styling improvements for dark theme
+  .status-tabs {
+    ::ng-deep {
+      .mat-mdc-tab-header:before {
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+      }
+      
+      .mat-mdc-tab:not(.mdc-tab--active):hover {
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
+      }
     }
   }
 }
